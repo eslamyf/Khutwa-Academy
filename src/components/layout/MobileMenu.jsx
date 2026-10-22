@@ -126,7 +126,7 @@ export function MobileMenu() {
                   }}
                 >
                   <i className="fa-solid fa-paper-plane"></i>
-                  <span>جاهز؟ سيب رقمك</span>
+                  <span>عندك استفسار؟ سيب بياناتك</span>
                 </button>
 
                 <div className="mob-nav-divider mob-anim-item" style={{ '--i': 7 }} />

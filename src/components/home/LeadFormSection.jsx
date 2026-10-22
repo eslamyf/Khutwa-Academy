@@ -33,7 +33,7 @@ export function LeadFormSection() {
   return (
     <section className="join" id="join">
       <div className={`form ${leadSent ? 'sent' : ''}`}>
-        <h2>جاهز؟<br />سيب رقمك وهنكلمك على واتساب</h2>
+        <h2>عندك أي استفسار؟<br />سيب بياناتك وهنتواصل معاك</h2>
         <form id="f" style={{ display: 'grid', gap: '18px' }} onSubmit={handleLeadSubmit}>
           <div className="opts" role="radiogroup" aria-label="المسار">
             <label>
@@ -81,13 +81,13 @@ export function LeadFormSection() {
           />
           <input
             id="lead-phone"
-            aria-label="رقم الهاتف أو الواتساب"
+            aria-label="رقم الهاتف للتواصل"
             className="in"
             name="phone"
             type="tel"
             inputMode="tel"
             dir="rtl"
-            placeholder="رقم واتساب"
+            placeholder="رقم هاتفك للتواصل"
             required
             autoComplete="tel"
             value={leadForm.phone}
@@ -113,7 +113,7 @@ export function LeadFormSection() {
           />
           <button className="btn" type="submit">ابدأ خطوتك وأرسل استفسارك</button>
         </form>
-        <p className="ok">وصلنا طلبك واستفسارك بنجاح. هنكلمك على واتساب قريباً جداً.</p>
+        <p className="ok">وصلنا طلبك واستفسارك بنجاح. هنتواصل معاك قريباً جداً.</p>
         <a href="#/auth/register" className="alt">أو اعمل حساب وابدأ دلوقتي ←</a>
       </div>
 

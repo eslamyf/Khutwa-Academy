@@ -606,16 +606,53 @@ h1 .l span {
 /* JOURNEY (C) */
 .j {
   position: relative;
-  height: 230vh;
-  min-height: 1500px;
+  height: 210vh;
+  min-height: 1450px;
+}
+
+/* Centered section header for tracks journey */
+.j-title-wrap {
+  position: absolute;
+  top: clamp(24px, 4vh, 55px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 5;
+  text-align: center;
+  width: 90%;
+  max-width: 650px;
+  pointer-events: none;
+}
+
+.j-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 18px;
+  border-radius: 99px;
+  background: rgba(43, 185, 211, 0.12);
+  border: 1px solid rgba(43, 185, 211, 0.35);
+  color: var(--cyan);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .j h2 {
-  position: absolute;
-  top: 2vh;
-  inset-inline-start: 7vw;
+  position: static;
+  margin: 0;
   font-weight: 900;
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(2.4rem, 5.2vw, 4.2rem);
+  color: var(--fg);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.75), 0 0 24px rgba(43, 185, 211, 0.3);
 }
 
 .j svg {
@@ -653,9 +690,9 @@ h1 .l span {
 .st {
   position: absolute;
   width: min(44%, 520px);
-  opacity: 0.2;
-  transform: translateY(24px);
-  transition: opacity 0.7s, transform 0.7s;
+  opacity: 0.35;
+  transform: translateY(18px);
+  transition: opacity 0.55s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .st.on {

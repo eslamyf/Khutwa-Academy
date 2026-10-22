@@ -81,11 +81,18 @@ export function TracksJourney() {
     function updateScroll() {
       if (!J || !pf || !ic) return;
       const r = J.getBoundingClientRect();
-      const p = Math.max(0, Math.min(1, (window.innerHeight * 0.6 - r.top) / (H_val + window.innerHeight * 0.1)));
+      const p = Math.max(0, Math.min(1, (window.innerHeight * 0.85 - r.top) / (H_val + window.innerHeight * 0.08)));
       pf.style.strokeDashoffset = L_len * (1 - p);
       const pt = pf.getPointAtLength(L_len * p);
       ic.style.transform = `translate(${pt.x - 29}px,${pt.y - 48}px)`;
-      sts.forEach((s, i) => s.classList.toggle('on', L_len * p >= lenAt(ys_val[i])));
+
+      sts.forEach((s, i) => {
+        const sRect = s.getBoundingClientRect();
+        // تفعيل معتدل ووسطي: عندما يصل الكورس لمنتصف مجال الرؤية أو يصله المسار
+        const isInFocus = sRect.top < window.innerHeight * 0.58 && sRect.bottom > 80;
+        const isPathReached = (L_len * p) >= (lenAt(ys_val[i]) - 40);
+        s.classList.toggle('on', isInFocus || isPathReached);
+      });
     }
 
     window.addEventListener('scroll', updateScroll, { passive: true });
@@ -101,7 +108,10 @@ export function TracksJourney() {
 
   return (
     <section className="j" id="j" ref={journeyRef}>
-      <h2>اختار مسارك</h2>
+      <div className="j-title-wrap">
+        <span className="j-tag">المسارات والمعسكرات التدريبية</span>
+        <h2>اختار مسارك</h2>
+      </div>
       <svg aria-hidden="true">
         <path className="bg" ref={pbRef} />
         <path className="fg" ref={pfRef} />
