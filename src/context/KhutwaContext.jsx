@@ -29,7 +29,18 @@ export function KhutwaProvider({ children }) {
                 url: (el && el.url) ? el.url : sl.url
               };
             });
-            return { ...ex, lessons: updatedLessons };
+            // Update old default prices (1500, 1200) to new reduced prices
+            const price = (ex.price === 1500 || ex.price === 1200 || !ex.price) ? sc.price : ex.price;
+            return { ...ex, price, lessons: updatedLessons };
+          });
+        }
+        if (parsed.subRequests && parsed.subRequests.length) {
+          parsed.subRequests = parsed.subRequests.map((s) => {
+            const course = parsed.courses.find((c) => c.id === s.courseId);
+            if (course && (s.price === 1500 || s.price === 1200)) {
+              return { ...s, price: course.price };
+            }
+            return s;
           });
         }
         return parsed;
