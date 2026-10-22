@@ -1,0 +1,137 @@
+import React, { useEffect, useRef } from 'react';
+import { useKhutwa } from '../../hooks';
+
+export function TracksJourney() {
+  const { isAppOpen } = useKhutwa();
+
+  // SVG Journey refs
+  const journeyRef = useRef(null);
+  const pbRef = useRef(null);
+  const pfRef = useRef(null);
+  const icRef = useRef(null);
+  const st1Ref = useRef(null);
+  const st2Ref = useRef(null);
+  const st3Ref = useRef(null);
+  const endRef = useRef(null);
+
+  // Build journey path (exact math from khutwa-site)
+  useEffect(() => {
+    if (isAppOpen) return;
+
+    const J = journeyRef.current;
+    const pb = pbRef.current;
+    const pf = pfRef.current;
+    const ic = icRef.current;
+    const sts = [st1Ref.current, st2Ref.current, st3Ref.current].filter(Boolean);
+
+    if (!J || !pb || !pf || !ic || sts.length !== 3) return;
+
+    let L_len = 0;
+    let H_val = 0;
+    let ys_val = [];
+
+    function buildPath() {
+      const W = J.clientWidth;
+      H_val = J.clientHeight;
+      const m = W < 800;
+      const xs = m ? [0.9, 0.8, 0.9, 0.82] : [0.3, 0.7, 0.3, 0.5];
+      ys_val = sts.map((s) => +s.dataset.y * H_val);
+      const endEl = endRef.current;
+      const endY = endEl ? Math.max(ys_val[2] + 120, endEl.offsetTop - (m ? 60 : 70)) : (H_val * (m ? 0.82 : 0.88));
+      const pts = [[W * (m ? 0.88 : 0.5), 0], ...ys_val.map((y, i) => [W * xs[i], y]), [W * 0.5, endY]];
+
+      let d = `M${pts[0][0]},${pts[0][1]}`;
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1];
+        const [x1, y1] = pts[i];
+        const my = (y0 + y1) / 2;
+        d += ` C${x0},${my} ${x1},${my} ${x1},${y1}`;
+      }
+
+      pb.setAttribute('d', d);
+      pf.setAttribute('d', d);
+      L_len = pf.getTotalLength();
+      pf.style.strokeDasharray = L_len;
+
+      sts.forEach((s, i) => {
+        s.style.top = ys_val[i] - s.offsetHeight / 2 + 'px';
+        if (m) {
+          s.style.insetInlineEnd = '4vw';
+          s.style.insetInlineStart = 'auto';
+        } else if (xs[i] < 0.5) {
+          s.style.insetInlineStart = '6%';
+          s.style.insetInlineEnd = 'auto';
+        } else {
+          s.style.insetInlineEnd = '6%';
+          s.style.insetInlineStart = 'auto';
+        }
+      });
+      updateScroll();
+    }
+
+    function lenAt(y) {
+      let lo = 0, hi = L_len;
+      for (let k = 0; k < 18; k++) {
+        const mid = (lo + hi) / 2;
+        pf.getPointAtLength(mid).y < y ? (lo = mid) : (hi = mid);
+      }
+      return lo;
+    }
+
+    function updateScroll() {
+      if (!J || !pf || !ic) return;
+      const r = J.getBoundingClientRect();
+      const p = Math.max(0, Math.min(1, (window.innerHeight * 0.6 - r.top) / (H_val + window.innerHeight * 0.1)));
+      pf.style.strokeDashoffset = L_len * (1 - p);
+      const pt = pf.getPointAtLength(L_len * p);
+      ic.style.transform = `translate(${pt.x - 29}px,${pt.y - 48}px)`;
+      sts.forEach((s, i) => s.classList.toggle('on', L_len * p >= lenAt(ys_val[i])));
+    }
+
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    window.addEventListener('resize', buildPath);
+    document.fonts.ready.then(buildPath);
+    buildPath();
+
+    return () => {
+      window.removeEventListener('scroll', updateScroll);
+      window.removeEventListener('resize', buildPath);
+    };
+  }, [isAppOpen]);
+
+  return (
+    <section className="j" id="j" ref={journeyRef}>
+      <h2>اختار مسارك</h2>
+      <svg aria-hidden="true">
+        <path className="bg" ref={pbRef} />
+        <path className="fg" ref={pfRef} />
+      </svg>
+      <img className="ic" ref={icRef} src="assets/icon-cyan.png" alt="" />
+
+      <div className="st" ref={st1Ref} data-y=".16">
+        <div className="n">٨<small>أسابيع</small></div>
+        <b>تطوير واجهات الويب</b>
+        <p>تبني مواقع حقيقية وتطلع بمشاريع في البورتفوليو.</p>
+        <a href="#/course/frontend">تفاصيل المسار</a>
+      </div>
+
+      <div className="st" ref={st2Ref} data-y=".43">
+        <div className="n">٦<small>أسابيع</small></div>
+        <b>تصميم UX/UI</b>
+        <p>تصمم تجربة مستخدم كاملة، من الفكرة للنموذج التفاعلي.</p>
+        <a href="#/course/ux">تفاصيل المسار</a>
+      </div>
+
+      <div className="st" ref={st3Ref} data-y=".70">
+        <div className="n">٦<small>أسابيع</small></div>
+        <b>التسويق الرقمي</b>
+        <p>تخطط وتنشر وتقيس محتوى حقيقي لعلامة حقيقية.</p>
+        <a href="#/course/marketing">تفاصيل المسار</a>
+      </div>
+
+      <div className="end" ref={endRef}>وإرشاد فردي معاك طول الطريق.</div>
+    </section>
+  );
+}
+
+export default TracksJourney;
