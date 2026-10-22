@@ -34,15 +34,47 @@ export function CourseView({ id }) {
     <div className="wrap">
       <div className="ch">
         <div>
-          <p className="cr"><a href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>الرئيسية</a> / المسارات</p>
+          <p className="cr">
+            <a href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>الرئيسية</a>
+            {' / '}
+            <a href="#j" onClick={(e) => {
+              e.preventDefault();
+              window.location.hash = '';
+              setTimeout(() => {
+                const el = document.getElementById('j');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 60);
+            }}>المسارات</a>
+          </p>
           <h1>{c.title}</h1>
           <p className="mt">
             <span>{c.weeks} أسابيع</span>
             <span>{c.lessons.length} فيديو</span>
             <span>{totTime()}</span>
             <span>{c.price} ج.م</span>
+            {c.instructor && <span className="inst-pill">شرح: {c.instructor}</span>}
           </p>
           <p className="ds">{c.desc}</p>
+
+          {c.instructor && (
+            <div className="course-inst-box">
+              <div className="c-inst-avatar">
+                {c.instructorAvatar ? (
+                  <img src={c.instructorAvatar} alt={c.instructor} className="c-inst-avatar-img" />
+                ) : (
+                  <span>👨‍🏫</span>
+                )}
+              </div>
+              <div className="c-inst-info">
+                <span className="c-inst-sub">
+                  <i className="fa-solid fa-circle-check" style={{ color: 'var(--cyan)', marginInlineEnd: '5px' }}></i>
+                  مدرّب وموجّه المسار المعتمد
+                </span>
+                <strong className="c-inst-title">{c.instructor}</strong>
+                {c.instructorRole && <span className="c-inst-role">{c.instructorRole}</span>}
+              </div>
+            </div>
+          )}
 
           {en ? (
             <a className="btn" href={`#/watch/${c.id}/${c.lessons[0]?.id || ''}`}>كمّل الكورس</a>

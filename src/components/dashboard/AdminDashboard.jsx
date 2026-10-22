@@ -21,11 +21,22 @@ export function AdminDashboard() {
   const [sq, setSq] = useState('');
   const [subFilter, setSubFilter] = useState('all');
   const [subSearch, setSubSearch] = useState('');
+  const [replyingLeadId, setReplyingLeadId] = useState(null);
+  const [replyText, setReplyText] = useState('');
+
+  // Student Filters & Password Reset State
+  const [stuSearch, setStuSearch] = useState('');
+  const [stuEnrollFilter, setStuEnrollFilter] = useState('all'); // all | enrolled | not_enrolled
+  const [stuCourseFilter, setStuCourseFilter] = useState('all'); // all | courseId
+  const [stuStatusFilter, setStuStatusFilter] = useState('all'); // all | active | blocked
+  const [stuSort, setStuSort] = useState('newest'); // newest | name | balance | courses
+  const [resetPassStu, setResetPassStu] = useState(null);
+  const [quickNewPass, setQuickNewPass] = useState('');
 
   if (!user || user.role !== 'admin') return null;
 
   const st = db.users.filter((u) => u.role === 'student');
-  const rev = -db.tx.filter((t) => t.type === 'purchase').reduce((s, t) => s + t.amount, 0);
+  const rev = db.tx.filter((t) => t.type === 'purchase').reduce((s, t) => s + Math.abs(t.amount || 0), 0);
   const subList = db.subRequests || [];
 
   const pendingSubCount = subList.filter((s) => s.status === 'pending').length;
@@ -274,10 +285,16 @@ export function AdminDashboard() {
                         </div>
                       </td>
                       <td>
-                        <span style={{ fontWeight: 700, color: 'var(--fg)' }}>{req.courseTitle}</span>
+                        {req.type === 'topup' ? (
+                          <span style={{ fontWeight: 800, color: 'var(--cyt)' }}>
+                            💰 {req.courseTitle || 'شحن رصيد محفظة'}
+                          </span>
+                        ) : (
+                          <span style={{ fontWeight: 700, color: 'var(--fg)' }}>{req.courseTitle}</span>
+                        )}
                       </td>
                       <td>
-                        <span className="admin-price-tag">{req.price} ج.م</span>
+                        <span className="admin-price-tag">{req.amount || req.price} ج.م</span>
                       </td>
                       <td>
                         <span className={`admin-method-badge ${req.method === 'vodafone' ? 'admin-method-vf' : 'admin-method-insta'}`}>
@@ -329,23 +346,44 @@ export function AdminDashboard() {
                               type="button"
                               className="admin-action-btn-approve"
                               onClick={() => {
-                                // Approve and Enroll
                                 const targetUser = db.users.find((u) => u.id === req.userId);
                                 if (!targetUser) {
                                   showToast('المستخدم غير موجود');
                                   return;
                                 }
+
+                                // Case 1: Topup Request
+                                if (req.type === 'topup') {
+                                  const topupVal = Number(req.amount || req.price || 0);
+                                  targetUser.balance = (Number(targetUser.balance) || 0) + topupVal;
+                                  const nextTx = [
+                                    {
+                                      id: gid('t'),
+                                      u: req.userId,
+                                      amount: topupVal,
+                                      type: 'topup',
+                                      note: `شحن رصيد محفظة (${req.method === 'vodafone' ? 'فودافون كاش' : 'إنستاباي'}) - المحول منه: ${req.sender}`,
+                                      date: Date.now()
+                                    },
+                                    ...db.tx
+                                  ];
+                                  req.status = 'approved';
+                                  req.reviewedAt = Date.now();
+                                  saveDb({ ...db, tx: nextTx });
+                                  showToast(`تمت الموافقة وشحن ${topupVal} ج.م في محفظة الطالب ${req.userName} بنجاح!`);
+                                  return;
+                                }
+
+                                // Case 2: Course Subscription
                                 const targetCourse = getCourse(req.courseId);
                                 if (!targetCourse) {
                                   showToast('الكورس غير موجود');
                                   return;
                                 }
 
-                                // 1. Add enrollment
                                 const already = db.enr.find((e) => e.u === req.userId && e.c === req.courseId);
                                 const nextEnr = already ? [...db.enr] : [...db.enr, { u: req.userId, c: req.courseId, date: Date.now(), done: [] }];
 
-                                // 2. Add transaction
                                 const nextTx = [
                                   {
                                     id: gid('t'),
@@ -358,7 +396,6 @@ export function AdminDashboard() {
                                   ...db.tx
                                 ];
 
-                                // 3. Update request status
                                 req.status = 'approved';
                                 req.reviewedAt = Date.now();
 
@@ -366,7 +403,7 @@ export function AdminDashboard() {
                                 showToast(`تمت الموافقة وتفعيل ${req.courseTitle} للطالب ${req.userName} بنجاح!`);
                               }}
                             >
-                              ✓ تفعيل الكورس
+                              {req.type === 'topup' ? '✓ شحن الرصيد' : '✓ تفعيل الكورس'}
                             </button>
                             <button
                               type="button"
@@ -461,7 +498,10 @@ export function AdminDashboard() {
                 <tbody>
                   {db.courses.map((c) => (
                     <tr key={c.id}>
-                      <td><b>{c.title}</b></td>
+                      <td>
+                        <b>{c.title}</b>
+                        {c.instructor && <div style={{ fontSize: '0.8rem', color: 'var(--cyt)', marginTop: '2px' }}>شرح: {c.instructor}</div>}
+                      </td>
                       <td>{c.weeks} أسابيع</td>
                       <td><span className="admin-price-tag">{c.price} ج.م</span></td>
                       <td>{c.lessons.length} درس</td>
@@ -537,6 +577,8 @@ export function AdminDashboard() {
                   e.preventDefault();
                   const fd = new FormData(e.target);
                   c.title = fd.get('title').trim();
+                  c.instructor = (fd.get('instructor') || '').trim();
+                  c.instructorRole = (fd.get('instructorRole') || '').trim();
                   c.weeks = +fd.get('weeks') || 1;
                   c.price = +fd.get('price') || 0;
                   c.desc = fd.get('desc').trim();
@@ -551,6 +593,10 @@ export function AdminDashboard() {
                   اسم الكورس
                   <input className="fi" name="title" defaultValue={c.title} required placeholder="اسم الكورس" />
                 </label>
+                <div className="two">
+                  <label>اسم المدرب / المحاضر<input className="fi" name="instructor" defaultValue={c.instructor || ''} placeholder="مثال: م. إسلام ياسر" /></label>
+                  <label>لقب أو تخصص المدرب<input className="fi" name="instructorRole" defaultValue={c.instructorRole || ''} placeholder="مثال: Senior Frontend Engineer" /></label>
+                </div>
                 <div className="two">
                   <label>الأسابيع<input className="fi" type="number" min="1" name="weeks" defaultValue={c.weeks} /></label>
                   <label>السعر (ج.م)<input className="fi" type="number" min="0" name="price" defaultValue={c.price} /></label>
@@ -662,86 +708,462 @@ export function AdminDashboard() {
       {/* ========================================================
           TAB 4: STUDENTS (الطلاب)
           ======================================================== */}
-      {atab === 'students' && (
-        <>
-          <div className="admin-header-card">
-            <div>
-              <div className="admin-badge">
-                <span className="admin-badge-dot" />
-                إدارة المستخدمين
-              </div>
-              <h1 className="admin-title">الطلاب المسجلين</h1>
-              <p className="admin-subtitle">عرض الطلاب، أرصدتهم، وتعديل بياناتهم أو حظرهم.</p>
-            </div>
-            <div className="admin-search-box" style={{ minWidth: '280px' }}>
-              <input
-                type="text"
-                value={sq}
-                onChange={(e) => setSq(e.target.value)}
-                placeholder="ابحث بالاسم أو الإيميل أو الرقم..."
-              />
-            </div>
-          </div>
+      {/* ========================================================
+          TAB 4: STUDENTS (الطلاب المسجلين وإدارة بياناتهم)
+          ======================================================== */}
+      {atab === 'students' && (() => {
+        const studentList = db.users.filter((u) => u.role === 'student');
+        const stEnrolledCount = studentList.filter((u) => db.enr.some((e) => e.u === u.id)).length;
+        const stUnenrolledCount = studentList.length - stEnrolledCount;
+        const stBlockedCount = studentList.filter((u) => u.status === 'blocked').length;
 
-          <div className="admin-card">
-            <div className="sc">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>الطالب</th>
-                    <th>الهاتف</th>
-                    <th>الرصيد</th>
-                    <th>الكورسات</th>
-                    <th>الحالة</th>
-                    <th>الإجراء</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {db.users
-                    .filter((u) => u.role === 'student' && (u.name + u.email + (u.phone || '')).toLowerCase().includes(sq.toLowerCase()))
-                    .map((u) => (
-                      <tr key={u.id}>
-                        <td>
-                          <div className="admin-user-cell">
-                            <div className="admin-avatar">{u.name ? u.name.charAt(0) : 'ط'}</div>
-                            <div className="admin-user-meta">
-                              <span className="admin-user-name">{u.name}</span>
-                              <span className="admin-user-sub">{u.email}</span>
+        const filteredStudents = studentList
+          .filter((u) => {
+            // Search Query
+            if (stuSearch.trim()) {
+              const q = stuSearch.toLowerCase();
+              const p = u.profile || {};
+              const match =
+                (u.name || '').toLowerCase().includes(q) ||
+                (u.email || '').toLowerCase().includes(q) ||
+                (u.phone || '').toLowerCase().includes(q) ||
+                (p.university || '').toLowerCase().includes(q) ||
+                (p.faculty || '').toLowerCase().includes(q) ||
+                (p.year || '').toLowerCase().includes(q) ||
+                (p.goal || '').toLowerCase().includes(q);
+              if (!match) return false;
+            }
+
+            // Enrollment Filter
+            const userEnrs = db.enr.filter((e) => e.u === u.id);
+            if (stuEnrollFilter === 'enrolled' && userEnrs.length === 0) return false;
+            if (stuEnrollFilter === 'not_enrolled' && userEnrs.length > 0) return false;
+
+            // Course Filter
+            if (stuCourseFilter !== 'all' && !userEnrs.some((e) => e.c === stuCourseFilter)) return false;
+
+            // Status Filter
+            if (stuStatusFilter === 'active' && u.status === 'blocked') return false;
+            if (stuStatusFilter === 'blocked' && u.status !== 'blocked') return false;
+
+            return true;
+          })
+          .sort((a, b) => {
+            if (stuSort === 'name') return (a.name || '').localeCompare(b.name || '', 'ar');
+            if (stuSort === 'balance') return (b.balance || 0) - (a.balance || 0);
+            if (stuSort === 'courses') {
+              const ca = db.enr.filter((e) => e.u === a.id).length;
+              const cb = db.enr.filter((e) => e.u === b.id).length;
+              return cb - ca;
+            }
+            return (b.created || 0) - (a.created || 0);
+          });
+
+        return (
+          <>
+            <div className="admin-header-card">
+              <div>
+                <div className="admin-badge">
+                  <span className="admin-badge-dot" />
+                  إدارة المستخدمين والطلاب
+                </div>
+                <h1 className="admin-title">الطلاب المسجلين بالمنصة</h1>
+                <p className="admin-subtitle">
+                  متابعة جميع بيانات الطلاب الأكاديمية والشخصية، مساراتهم المشتركين بها، أرصدتهم، وتعيين كلمات المرور.
+                </p>
+              </div>
+              <div className="admin-stats-summary">
+                <div className="admin-stat-chip">
+                  <b>{studentList.length}</b>
+                  <span>طالب مسجل</span>
+                </div>
+                <div className="admin-stat-chip">
+                  <b style={{ color: 'var(--cyt)' }}>{stEnrolledCount}</b>
+                  <span>مشترك بمسار</span>
+                </div>
+                <div className="admin-stat-chip">
+                  <b style={{ color: '#f59e0b' }}>{stUnenrolledCount}</b>
+                  <span>غير مشترك</span>
+                </div>
+                {stBlockedCount > 0 && (
+                  <div className="admin-stat-chip">
+                    <b style={{ color: '#ef4444' }}>{stBlockedCount}</b>
+                    <span>موقوف</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Comprehensive Filters Bar */}
+            <div className="admin-filters-card">
+              <div className="admin-search-row">
+                <div className="admin-search-box" style={{ flex: 1 }}>
+                  <i className="fa-solid fa-magnifying-glass" style={{ marginInlineEnd: '8px', opacity: 0.6 }}></i>
+                  <input
+                    type="text"
+                    value={stuSearch}
+                    onChange={(e) => setStuSearch(e.target.value)}
+                    placeholder="ابحث بالاسم، البريد، الهاتف، الجامعة، الكلية..."
+                  />
+                  {stuSearch && (
+                    <button
+                      type="button"
+                      className="clear-search-btn"
+                      onClick={() => setStuSearch('')}
+                      style={{ background: 'none', border: 0, color: 'var(--fg)', cursor: 'pointer', padding: '0 4px' }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="admin-filters-pills-row">
+                {/* Enrollment Filter */}
+                <div className="filter-pill-group">
+                  <span className="filter-group-label">الاشتراك:</span>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${stuEnrollFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setStuEnrollFilter('all')}
+                  >
+                    الكل ({studentList.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${stuEnrollFilter === 'enrolled' ? 'active' : ''}`}
+                    onClick={() => setStuEnrollFilter('enrolled')}
+                  >
+                    المشتركين ({stEnrolledCount})
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${stuEnrollFilter === 'not_enrolled' ? 'active' : ''}`}
+                    onClick={() => setStuEnrollFilter('not_enrolled')}
+                  >
+                    غير المشتركين ({stUnenrolledCount})
+                  </button>
+                </div>
+
+                {/* Course Filter */}
+                <div className="filter-pill-group">
+                  <span className="filter-group-label">المسار:</span>
+                  <select
+                    className="admin-select-filter"
+                    value={stuCourseFilter}
+                    onChange={(e) => setStuCourseFilter(e.target.value)}
+                  >
+                    <option value="all">كل المسارات التدريبية</option>
+                    {db.courses.map((c) => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Account Status */}
+                <div className="filter-pill-group">
+                  <span className="filter-group-label">الحالة:</span>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${stuStatusFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setStuStatusFilter('all')}
+                  >
+                    الكل
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${stuStatusFilter === 'active' ? 'active' : ''}`}
+                    onClick={() => setStuStatusFilter('active')}
+                  >
+                    نشط
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${stuStatusFilter === 'blocked' ? 'active' : ''}`}
+                    onClick={() => setStuStatusFilter('blocked')}
+                  >
+                    موقوف
+                  </button>
+                </div>
+
+                {/* Sort Option */}
+                <div className="filter-pill-group" style={{ marginInlineStart: 'auto' }}>
+                  <span className="filter-group-label">الترتيب:</span>
+                  <select
+                    className="admin-select-filter"
+                    value={stuSort}
+                    onChange={(e) => setStuSort(e.target.value)}
+                  >
+                    <option value="newest">الأحدث انضماماً</option>
+                    <option value="name">أبجدياً (الاسم)</option>
+                    <option value="balance">الأعلى رصيداً</option>
+                    <option value="courses">الأكثر اشتراكاً</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Students Table */}
+            <div className="admin-card">
+              <div className="sc">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>الطالب والبريد</th>
+                      <th>الهاتف والتواصل</th>
+                      <th>الملف والبيانات الأكاديمية</th>
+                      <th>المسارات المشترك بها</th>
+                      <th>الرصيد</th>
+                      <th>الحالة</th>
+                      <th>إجراءات الإدارة</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStudents.map((u) => {
+                      const p = u.profile || {};
+                      const userEnrs = db.enr.filter((e) => e.u === u.id);
+                      const waUrl = u.phone ? `https://wa.me/${String(u.phone).replace(/\D/g, '').replace(/^0/, '20')}` : null;
+
+                      return (
+                        <tr key={u.id}>
+                          {/* Col 1: Student info & password hint */}
+                          <td>
+                            <div className="admin-user-cell">
+                              <div className="admin-avatar">
+                                {u.name ? u.name.trim().charAt(0) : 'ط'}
+                              </div>
+                              <div className="admin-user-meta">
+                                <span className="admin-user-name">{u.name}</span>
+                                <span className="admin-user-sub">{u.email}</span>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '4px' }}>
+                                  <span className="admin-pass-chip" title="كلمة المرور الحالية المسجلة للنظام">
+                                    🔑 {u.pass || '123456'}
+                                  </span>
+                                  <small className="hint">{fmt(u.created || Date.now())}</small>
+                                </div>
+                              </div>
                             </div>
+                          </td>
+
+                          {/* Col 2: Phone & WhatsApp */}
+                          <td>
+                            {u.phone ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{u.phone}</span>
+                                <a
+                                  href={waUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="admin-wa-btn"
+                                  title="مراسلة الطالب مباشرة عبر واتساب"
+                                >
+                                  <i className="fa-brands fa-whatsapp"></i>
+                                  <span>مراسلة واتساب</span>
+                                </a>
+                              </div>
+                            ) : (
+                              <span className="hint">لا يوجد رقم</span>
+                            )}
+                          </td>
+
+                          {/* Col 3: Academic Profile Info */}
+                          <td>
+                            <div className="admin-profile-meta">
+                              <div>
+                                <b>الجامعة:</b> {p.university || '—'}
+                              </div>
+                              <div>
+                                <b>الكلية:</b> {p.faculty || '—'}
+                              </div>
+                              <div className="hint" style={{ fontSize: '.8rem' }}>
+                                {p.year ? `السنة: ${p.year}` : ''} {p.goal ? `· الهدف: ${p.goal}` : ''}
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Col 4: Enrolled Courses */}
+                          <td>
+                            {userEnrs.length > 0 ? (
+                              <div className="admin-enr-chips-wrap">
+                                {userEnrs.map((e) => {
+                                  const c = getCourse(e.c);
+                                  return (
+                                    <span key={e.c} className="admin-course-pill">
+                                      <i className="fa-solid fa-graduation-cap"></i>
+                                      {c?.title || e.c}
+                                      <small>({e.done?.length || 0} درس)</small>
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <span className="admin-no-enr-tag">غير مشترك</span>
+                            )}
+                          </td>
+
+                          {/* Col 5: Balance */}
+                          <td>
+                            <span className="admin-price-tag">{u.balance || 0} ج.م</span>
+                          </td>
+
+                          {/* Col 6: Status */}
+                          <td>
+                            <span className={`admin-status-pill ${u.status === 'blocked' ? 'admin-status-rejected' : 'admin-status-approved'}`}>
+                              <span className="admin-status-dot" />
+                              {u.status === 'blocked' ? 'موقوف' : 'نشط'}
+                            </span>
+                          </td>
+
+                          {/* Col 7: Actions */}
+                          <td>
+                            <div className="admin-actions-cell" style={{ flexWrap: 'wrap', gap: '6px' }}>
+                              <button
+                                type="button"
+                                className="admin-action-btn-resetpass"
+                                onClick={() => {
+                                  setResetPassStu(u);
+                                  setQuickNewPass('123456');
+                                }}
+                                title="إعادة تعيين كلمة المرور فورياً"
+                              >
+                                🔑 كلمة المرور
+                              </button>
+                              <button
+                                type="button"
+                                className="btn"
+                                style={{ padding: '6px 12px', fontSize: '.82rem' }}
+                                onClick={() => {
+                                  setDialogContent({ type: 'student', student: u });
+                                }}
+                              >
+                                ⚙️ إدارة شاملة
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+
+                    {filteredStudents.length === 0 && (
+                      <tr>
+                        <td colSpan={7}>
+                          <div className="admin-empty-state">
+                            <div className="admin-empty-icon">👥</div>
+                            <div className="admin-empty-title">لا توجد نتائج مطابقة لبحثك</div>
+                            <div className="admin-empty-desc">
+                              جرب تغيير كلمات البحث أو إعادة ضبط خيارات الفلاتر المعروضة بالأعلى.
+                            </div>
+                            <button
+                              type="button"
+                              className="btn btn-sm"
+                              style={{ marginTop: '12px' }}
+                              onClick={() => {
+                                setStuSearch('');
+                                setStuEnrollFilter('all');
+                                setStuCourseFilter('all');
+                                setStuStatusFilter('all');
+                              }}
+                            >
+                              إعادة ضبط الفلاتر
+                            </button>
                           </div>
                         </td>
-                        <td>{u.phone || '—'}</td>
-                        <td><span className="admin-price-tag">{u.balance} ج.م</span></td>
-                        <td>{db.enr.filter((e) => e.u === u.id).length} كورس</td>
-                        <td>
-                          <span className={`admin-status-pill ${u.status === 'blocked' ? 'admin-status-rejected' : 'admin-status-approved'}`}>
-                            <span className="admin-status-dot" />
-                            {u.status === 'blocked' ? 'موقوف' : 'نشط'}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className="btn"
-                            style={{ padding: '6px 14px', fontSize: '.85rem' }}
-                            onClick={() => {
-                              setDialogContent({ type: 'student', student: u });
-                            }}
-                          >
-                            إدارة
-                          </button>
-                        </td>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </>
-      )}
+
+            {/* Quick Password Reset Dialog Modal */}
+            {resetPassStu && (
+              <div className="modal-overlay" onClick={() => setResetPassStu(null)}>
+                <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
+                  <button className="x" onClick={() => setResetPassStu(null)}>✕</button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(43, 185, 211, 0.15)', color: 'var(--cyan)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                      🔑
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.2rem' }}>إعادة تعيين كلمة المرور</h3>
+                      <p className="hint" style={{ margin: 0 }}>للطالب: {resetPassStu.name} ({resetPassStu.email})</p>
+                    </div>
+                  </div>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!quickNewPass.trim() || quickNewPass.trim().length < 4) {
+                        showToast('يرجى كتابة كلمة مرور لا تقل عن 4 خانات');
+                        return;
+                      }
+                      const target = db.users.find((u) => u.id === resetPassStu.id);
+                      if (target) {
+                        target.pass = quickNewPass.trim();
+                        saveDb({ ...db });
+                        showToast(`تم تغيير كلمة المرور للطالب (${target.name}) إلى: "${quickNewPass.trim()}" بنجاح!`);
+                        setResetPassStu(null);
+                        setQuickNewPass('');
+                      }
+                    }}
+                  >
+                    <label className="fi-label">كلمة المرور الجديدة المطلوبة:</label>
+                    <div style={{ position: 'relative', marginBottom: '12px' }}>
+                      <input
+                        type="text"
+                        className="fi"
+                        value={quickNewPass}
+                        onChange={(e) => setQuickNewPass(e.target.value)}
+                        placeholder="اكتب كلمة المرور الجديدة..."
+                        required
+                        autoFocus
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '18px' }}>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '.8rem' }}
+                        onClick={() => setQuickNewPass('123456')}
+                      >
+                        افتراضي (123456)
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '.8rem' }}
+                        onClick={() => setQuickNewPass('khutwa' + Math.floor(1000 + Math.random() * 9000))}
+                      >
+                        توليد عشوائي
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                        ✓ حفظ وتطبيق كلمة المرور
+                      </button>
+                      <button
+                        type="button"
+                        className="lnk"
+                        onClick={() => setResetPassStu(null)}
+                      >
+                        إلغاء
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </>
+        );
+      })()}
 
       {/* ========================================================
           TAB 5: LEADS (الاستفسارات)
+          ======================================================== */}
+      {/* ========================================================
+          TAB 5: LEADS (الاستفسارات والدعم والردود)
           ======================================================== */}
       {atab === 'leads' && (
         <>
@@ -749,14 +1171,14 @@ export function AdminDashboard() {
             <div>
               <div className="admin-badge">
                 <span className="admin-badge-dot" />
-                إدارة طلبات التواصل
+                مركز استفسارات ورسائل الطلاب
               </div>
-              <h1 className="admin-title">استفسارات الصفحة الرئيسية</h1>
-              <p className="admin-subtitle">المهتمين الذين سجلوا بياناتهم للتواصل عبر نموذج الخطوة الأولى في الصفحة الرئيسية.</p>
+              <h1 className="admin-title">الاستفسارات والدعم والردود</h1>
+              <p className="admin-subtitle">متابعة رسائل واستفسارات الطلاب والمهتمين بالمسارات، والرد المباشر عليها لتصل إلى حساباتهم وإشعار الجرس.</p>
             </div>
             <div className="admin-stat-chip">
-              <b>{db.leads.filter((l) => l.status === 'new').length}</b>
-              <span>استفسار جديد</span>
+              <b>{db.leads.filter((l) => l.status === 'new' || !l.reply).length}</b>
+              <span>في انتظار الرد</span>
             </div>
           </div>
 
@@ -766,47 +1188,120 @@ export function AdminDashboard() {
                 <thead>
                   <tr>
                     <th>التاريخ</th>
-                    <th>الاسم</th>
-                    <th>الهاتف والواتساب</th>
+                    <th>الطالب / المهتم</th>
                     <th>المسار المطلوب</th>
-                    <th>الإجراءات</th>
+                    <th>نص الاستفسار والرد</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات والرد</th>
                   </tr>
                 </thead>
                 <tbody>
                   {db.leads.map((l) => (
                     <tr key={l.id}>
                       <td><div className="admin-date-cell">{fmt(l.date)}</div></td>
-                      <td><b>{l.name}</b></td>
                       <td>
-                        <a
-                          className="admin-action-btn-approve"
-                          style={{ textDecoration: 'none', padding: '5px 12px', fontSize: '.82rem' }}
-                          href={`https://wa.me/${String(l.phone).replace(/\D/g, '').replace(/^0/, '20')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          💬 {l.phone}
-                        </a>
+                        <b>{l.name}</b>
+                        <div style={{ marginTop: '4px' }}>
+                          <a
+                            className="admin-action-btn-approve"
+                            style={{ textDecoration: 'none', padding: '3px 10px', fontSize: '.78rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            href={`https://wa.me/${String(l.phone).replace(/\D/g, '').replace(/^0/, '20')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            💬 {l.phone}
+                          </a>
+                        </div>
                       </td>
                       <td><b>{getCourse(l.track)?.title || l.track}</b></td>
+                      <td style={{ maxWidth: '320px' }}>
+                        <div className="admin-inq-msg">
+                          <strong>سؤال الطالب:</strong>
+                          <p>{l.message || 'طلب تواصل واستفسار عن تفاصيل المسار'}</p>
+                        </div>
+                        {l.reply && (
+                          <div className="admin-inq-reply-badge">
+                            <strong>رد الأكاديمية:</strong>
+                            <p>{l.reply}</p>
+                            {l.repliedAt && <small>{fmt(l.repliedAt)}</small>}
+                          </div>
+                        )}
+                        {replyingLeadId === l.id && (
+                          <div className="admin-reply-box">
+                            <textarea
+                              className="fi"
+                              rows={3}
+                              placeholder="اكتب رد الأكاديمية الرسمي للطالب هنا..."
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                            />
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                              <button
+                                type="button"
+                                className="btn"
+                                style={{ padding: '6px 14px', fontSize: '.85rem' }}
+                                onClick={() => {
+                                  if (!replyText.trim()) {
+                                    showToast('يرجى كتابة نص الرد أولاً');
+                                    return;
+                                  }
+                                  l.reply = replyText.trim();
+                                  l.repliedAt = Date.now();
+                                  l.status = 'answered';
+                                  l.readByStudent = false;
+                                  saveDb({ ...db });
+                                  setReplyingLeadId(null);
+                                  setReplyText('');
+                                  showToast('تم إرسال الرد للطالب بنجاح! سيظهر في حسابه وإشعار الجرس');
+                                }}
+                              >
+                                إرسال الرد للطالب
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-secondary"
+                                style={{ padding: '6px 14px', fontSize: '.85rem', borderRadius: '99px', background: 'transparent', border: '1px solid var(--line)', color: 'var(--fg)', cursor: 'pointer' }}
+                                onClick={() => {
+                                  setReplyingLeadId(null);
+                                  setReplyText('');
+                                }}
+                              >
+                                إلغاء
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`admin-status-pill ${l.reply ? 'admin-status-approved' : 'admin-status-pending'}`}>
+                          <span className="admin-status-dot" />
+                          {l.reply ? 'تم الرد ✓' : 'في انتظار الرد'}
+                        </span>
+                      </td>
                       <td>
                         <div className="admin-actions-cell">
                           <button
                             type="button"
                             className="btn"
-                            style={{ padding: '6px 12px', fontSize: '.85rem' }}
+                            style={{ padding: '6px 12px', fontSize: '.82rem' }}
                             onClick={() => {
-                              l.status = l.status === 'new' ? 'done' : 'new';
-                              saveDb({ ...db });
+                              if (replyingLeadId === l.id) {
+                                setReplyingLeadId(null);
+                                setReplyText('');
+                              } else {
+                                setReplyingLeadId(l.id);
+                                setReplyText(l.reply || '');
+                              }
                             }}
                           >
-                            {l.status === 'new' ? 'تم التواصل ✓' : '↺ جديد'}
+                            {l.reply ? 'تعديل الرد' : 'رد على الاستفسار'}
                           </button>
                           <button
                             type="button"
                             className="admin-action-btn-delete"
                             onClick={() => {
                               saveDb({ ...db, leads: db.leads.filter((x) => x.id !== l.id) });
+                              showToast('تم حذف الاستفسار');
                             }}
                           >
                             حذف
@@ -817,11 +1312,11 @@ export function AdminDashboard() {
                   ))}
                   {db.leads.length === 0 && (
                     <tr>
-                      <td colSpan={5}>
+                      <td colSpan={6}>
                         <div className="admin-empty-state">
                           <div className="admin-empty-icon">📬</div>
                           <div className="admin-empty-title">لا توجد استفسارات حالياً</div>
-                          <div className="admin-empty-desc">أي طالب يسجل في استمارة التواصل بالرئيسية سيظهر هنا فوراً.</div>
+                          <div className="admin-empty-desc">أي طالب أو زائر يسجل استفساراً في الصفحة الرئيسية أو لوحة التحكم سيظهر هنا فوراً.</div>
                         </div>
                       </td>
                     </tr>

@@ -19,6 +19,7 @@ export function WatchView({ cid, lid }) {
     <div className="wrap">
       <p className="cr">
         <a href={`#/course/${c.id}`}>← {c.title}</a>
+        {c.instructor && <span style={{ opacity: 0.8, marginInlineStart: '10px' }}>• تقديم: {c.instructor}</span>}
       </p>
       <div className="wt">
         <div>

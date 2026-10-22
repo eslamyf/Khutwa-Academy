@@ -35,10 +35,13 @@ export function initialSeed() {
       {
         id: 'frontend',
         title: 'معسكر تطوير واجهات الويب',
+        instructor: 'م. إسلام ياسر',
+        instructorRole: 'Senior Frontend Engineer & Web Mentor',
+        instructorAvatar: 'assets/mentors/eslam.jpg',
         weeks: 8,
         price: 650,
         pub: true,
-        img: '',
+        img: 'assets/courses/frontend.jpg',
         desc: '٨ أسابيع تبني فيها واجهات مواقع حقيقية خطوة بخطوة، مع إرشاد فردي أسبوعي.',
         outcomes: [
           'تبني صفحة ويب متجاوبة من الصفر',
@@ -58,10 +61,13 @@ export function initialSeed() {
       {
         id: 'ux',
         title: 'مسار التصميم UX/UI',
+        instructor: 'أ. سارة أحمد',
+        instructorRole: 'Lead Product & UX/UI Designer',
+        instructorAvatar: 'assets/mentors/sara.jpg',
         weeks: 6,
         price: 500,
         pub: true,
-        img: '',
+        img: 'assets/courses/ux.jpg',
         desc: '٦ أسابيع تتعلم فيها تصمم تجربة مستخدم كاملة من الفكرة للنموذج التفاعلي.',
         outcomes: [
           'تفهم المستخدم وتحوّله لمشكلة تتحل',
@@ -80,10 +86,13 @@ export function initialSeed() {
       {
         id: 'marketing',
         title: 'التسويق الرقمي وصناعة المحتوى',
+        instructor: 'أ. كريم عبد الرحمن',
+        instructorRole: 'Growth & Performance Marketing Specialist',
+        instructorAvatar: 'assets/mentors/karim.jpg',
         weeks: 6,
         price: 450,
         pub: true,
-        img: '',
+        img: 'assets/courses/marketing.jpg',
         desc: '٦ أسابيع تخطط فيها محتوى حقيقي وتنشره وتقيس نتيجته.',
         outcomes: [
           'تحدد جمهورك وتكتب خطة محتوى',

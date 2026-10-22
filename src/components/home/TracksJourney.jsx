@@ -111,22 +111,76 @@ export function TracksJourney() {
       <div className="st" ref={st1Ref} data-y=".16">
         <div className="n">٨<small>أسابيع</small></div>
         <b>تطوير واجهات الويب</b>
-        <p>تبني مواقع حقيقية وتطلع بمشاريع في البورتفوليو.</p>
-        <a href="#/course/frontend">تفاصيل المسار</a>
+        <p>تبني مواقع حقيقية وتطلع بمشاريع قوية في البورتفوليو.</p>
+
+        <div className="st-mentor-card">
+          <div className="st-mentor-avatar-wrap">
+            <img src="assets/mentors/eslam.jpg" alt="م. إسلام ياسر" className="st-mentor-avatar" />
+            <span className="st-mentor-badge" title="مدرّب معتمد">
+              <i className="fa-solid fa-circle-check"></i>
+            </span>
+          </div>
+          <div className="st-mentor-info">
+            <span className="st-mentor-label">إشراف وتوجيه فردي</span>
+            <strong className="st-mentor-name">م. إسلام ياسر</strong>
+            <span className="st-mentor-spec">Senior Frontend Engineer</span>
+          </div>
+        </div>
+
+        <a href="#/course/frontend" className="st-cta">
+          <span>تفاصيل المسار</span>
+          <i className="fa-solid fa-arrow-left"></i>
+        </a>
       </div>
 
       <div className="st" ref={st2Ref} data-y=".43">
         <div className="n">٦<small>أسابيع</small></div>
         <b>تصميم UX/UI</b>
         <p>تصمم تجربة مستخدم كاملة، من الفكرة للنموذج التفاعلي.</p>
-        <a href="#/course/ux">تفاصيل المسار</a>
+
+        <div className="st-mentor-card">
+          <div className="st-mentor-avatar-wrap">
+            <img src="assets/mentors/sara.jpg" alt="أ. سارة أحمد" className="st-mentor-avatar" />
+            <span className="st-mentor-badge" title="مدرّبة معتمدة">
+              <i className="fa-solid fa-circle-check"></i>
+            </span>
+          </div>
+          <div className="st-mentor-info">
+            <span className="st-mentor-label">إشراف وتوجيه فردي</span>
+            <strong className="st-mentor-name">أ. سارة أحمد</strong>
+            <span className="st-mentor-spec">Lead Product & UX Designer</span>
+          </div>
+        </div>
+
+        <a href="#/course/ux" className="st-cta">
+          <span>تفاصيل المسار</span>
+          <i className="fa-solid fa-arrow-left"></i>
+        </a>
       </div>
 
       <div className="st" ref={st3Ref} data-y=".70">
         <div className="n">٦<small>أسابيع</small></div>
         <b>التسويق الرقمي</b>
-        <p>تخطط وتنشر وتقيس محتوى حقيقي لعلامة حقيقية.</p>
-        <a href="#/course/marketing">تفاصيل المسار</a>
+        <p>تخطط وتنشر وتقيس محتوى حقيقي لعلامة تجارية فعلية.</p>
+
+        <div className="st-mentor-card">
+          <div className="st-mentor-avatar-wrap">
+            <img src="assets/mentors/karim.jpg" alt="أ. كريم عبد الرحمن" className="st-mentor-avatar" />
+            <span className="st-mentor-badge" title="مدرّب معتمد">
+              <i className="fa-solid fa-circle-check"></i>
+            </span>
+          </div>
+          <div className="st-mentor-info">
+            <span className="st-mentor-label">إشراف وتوجيه فردي</span>
+            <strong className="st-mentor-name">أ. كريم عبد الرحمن</strong>
+            <span className="st-mentor-spec">Growth & Performance Marketing</span>
+          </div>
+        </div>
+
+        <a href="#/course/marketing" className="st-cta">
+          <span>تفاصيل المسار</span>
+          <i className="fa-solid fa-arrow-left"></i>
+        </a>
       </div>
 
       <div className="end" ref={endRef}>وإرشاد فردي معاك طول الطريق.</div>

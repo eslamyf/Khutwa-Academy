@@ -3,6 +3,7 @@ import { useKhutwa } from '../../hooks';
 import SubscriptionModal from './SubscriptionModal.jsx';
 import ReceiptViewerModal from './ReceiptViewerModal.jsx';
 import StudentManageModal from './StudentManageModal.jsx';
+import TopupModal from './TopupModal.jsx';
 
 export function ModalsManager() {
   const { dialogContent, setDialogContent } = useKhutwa();
@@ -30,6 +31,9 @@ export function ModalsManager() {
         <button className="x" onClick={() => setDialogContent(null)} aria-label="إغلاق">✕</button>
         {dialogContent.type === 'vodafone_insta_pay' && (
           <SubscriptionModal dialogContent={dialogContent} />
+        )}
+        {dialogContent.type === 'topup_balance' && (
+          <TopupModal dialogContent={dialogContent} />
         )}
         {dialogContent.type === 'view_receipt' && (
           <ReceiptViewerModal dialogContent={dialogContent} />

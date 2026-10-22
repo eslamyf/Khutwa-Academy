@@ -4,8 +4,8 @@ export function Footer() {
   return (
     <footer>
       <span>
-        <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" />
-        <img className="logo-l" src="assets/Asset_42.png" alt="أكاديمية خطوة" />
+        <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" width="42" height="56" loading="lazy" />
+        <img className="logo-l" src="assets/Asset_42.png" alt="أكاديمية خطوة" width="42" height="56" loading="lazy" />
       </span>
       <div className="footer-socials">
         <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><i className="fa-brands fa-facebook-f"></i></a>

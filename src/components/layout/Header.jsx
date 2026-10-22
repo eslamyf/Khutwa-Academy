@@ -6,16 +6,18 @@ export function Header() {
 
   return (
     <header>
-      <span
-        onClick={() => {
+      <a
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
           window.scrollTo({ top: 0, behavior: 'smooth' });
           window.location.hash = '';
         }}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', display: 'inline-flex' }}
       >
         <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" />
         <img className="logo-l" src="assets/Asset_42.png" alt="أكاديمية خطوة" />
-      </span>
+      </a>
 
       {/* Desktop Navigation Links */}
       <nav className="desktop-nav">
@@ -35,7 +37,7 @@ export function Header() {
       </nav>
 
       <div className="hr">
-        <button className="tg" onClick={toggleTheme} aria-label="تبديل الوضع الفاتح والداكن"></button>
+        <button className="tg" onClick={toggleTheme} aria-label="تبديل الوضع"></button>
 
         {/* Desktop Auth */}
         <div className="desktop-auth">
@@ -49,7 +51,7 @@ export function Header() {
               >
                 {user.name.split(' ')[0]}
               </button>
-              <button className="btn" onClick={logoutUser}>
+              <button className="btn-logout" onClick={logoutUser}>
                 خروج
               </button>
             </>

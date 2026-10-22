@@ -29,9 +29,12 @@ export function KhutwaProvider({ children }) {
                 url: (el && el.url) ? el.url : sl.url
               };
             });
-            // Update old default prices (1500, 1200) to new reduced prices
             const price = (ex.price === 1500 || ex.price === 1200 || !ex.price) ? sc.price : ex.price;
-            return { ...ex, price, lessons: updatedLessons };
+            const instructor = ex.instructor || sc.instructor;
+            const instructorRole = ex.instructorRole || sc.instructorRole;
+            const img = (ex.img && ex.img.trim()) ? ex.img : sc.img;
+            const instructorAvatar = ex.instructorAvatar || sc.instructorAvatar;
+            return { ...ex, price, lessons: updatedLessons, instructor, instructorRole, img, instructorAvatar };
           });
         }
         if (parsed.subRequests && parsed.subRequests.length) {
@@ -41,6 +44,14 @@ export function KhutwaProvider({ children }) {
               return { ...s, price: course.price };
             }
             return s;
+          });
+        }
+        if (parsed.leads && parsed.leads.length) {
+          parsed.leads = parsed.leads.map((l) => {
+            if (l.reply && !l.readTimestamp) {
+              return { ...l, readByStudent: false };
+            }
+            return l;
           });
         }
         return parsed;
@@ -167,6 +178,47 @@ export function KhutwaProvider({ children }) {
 
   const user = currentUser();
   const pendingSubCount = (db.subRequests || []).filter((s) => s.status === 'pending').length;
+  const pendingLeadsCount = (db.leads || []).filter((l) => l.status === 'new' || !l.reply).length;
+
+  const unreadRepliesCount = user ? (db.leads || []).filter((l) => {
+    const isUserLead = l.userId === user.id ||
+      (user.phone && l.phone === user.phone) ||
+      (user.email && l.userEmail === user.email);
+    return isUserLead && l.reply && !l.readByStudent;
+  }).length : 0;
+
+  const markInquiriesAsRead = () => {
+    if (!user) return;
+    let changed = false;
+    const updatedLeads = (db.leads || []).map((l) => {
+      const isUserLead = l.userId === user.id ||
+        (user.phone && l.phone === user.phone) ||
+        (user.email && l.userEmail === user.email);
+      if (isUserLead && l.reply && !l.readByStudent) {
+        changed = true;
+        return { ...l, readByStudent: true, readTimestamp: Date.now() };
+      }
+      return l;
+    });
+    if (changed) {
+      saveDb({ ...db, leads: updatedLeads });
+    }
+  };
+
+  const markSingleInquiryAsRead = (leadId) => {
+    if (!user || !leadId) return;
+    let changed = false;
+    const updatedLeads = (db.leads || []).map((l) => {
+      if (l.id === leadId && !l.readByStudent) {
+        changed = true;
+        return { ...l, readByStudent: true, readTimestamp: Date.now() };
+      }
+      return l;
+    });
+    if (changed) {
+      saveDb({ ...db, leads: updatedLeads });
+    }
+  };
 
   const value = {
     db,
@@ -193,6 +245,10 @@ export function KhutwaProvider({ children }) {
     user,
     isAppOpen,
     pendingSubCount,
+    pendingLeadsCount,
+    unreadRepliesCount,
+    markInquiriesAsRead,
+    markSingleInquiryAsRead,
     getCourse,
     getEnrollment,
     getPendingSub,

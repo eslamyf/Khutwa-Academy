@@ -12,7 +12,10 @@ export function MobileMenu() {
     setDtab,
     atab,
     setAtab,
-    pendingSubCount
+    pendingSubCount,
+    pendingLeadsCount,
+    unreadRepliesCount,
+    markInquiriesAsRead
   } = useKhutwa();
 
   const isHome = !hash || hash === '#' || hash === '#/';
@@ -36,8 +39,8 @@ export function MobileMenu() {
             }}
             style={{ cursor: 'pointer' }}
           >
-            <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" />
-            <img className="logo-l" src="assets/Asset_42.png" alt="أكاديمية خطوة" />
+            <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" width="30" height="40" loading="lazy" />
+            <img className="logo-l" src="assets/Asset_42.png" alt="أكاديمية خطوة" width="30" height="40" loading="lazy" />
           </span>
           <button
             className="mob-menu-close-btn"
@@ -229,6 +232,16 @@ export function MobileMenu() {
                       <i className="fa-solid fa-book-open"></i> الدورات المسجلة
                     </button>
                     <button
+                      className={`mob-sub-link ${dtab === 'inquiries' ? 'active' : ''}`}
+                      onClick={() => {
+                        if (markInquiriesAsRead) markInquiriesAsRead();
+                        setDtab('inquiries');
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <i className="fa-solid fa-comment-dots"></i> استفساراتي والدعم {unreadRepliesCount > 0 ? `(${unreadRepliesCount})` : ''}
+                    </button>
+                    <button
                       className={`mob-sub-link ${dtab === 'profile' ? 'active' : ''}`}
                       onClick={() => {
                         setDtab('profile');
@@ -308,6 +321,15 @@ export function MobileMenu() {
                           }}
                         >
                           <i className="fa-solid fa-laptop-code"></i> المسارات
+                        </button>
+                        <button
+                          className={`mob-sub-link ${atab === 'leads' ? 'active' : ''}`}
+                          onClick={() => {
+                            setAtab('leads');
+                            setMobileMenuOpen(false);
+                          }}
+                        >
+                          <i className="fa-solid fa-comments"></i> الاستفسارات والدعم {pendingLeadsCount > 0 ? `(${pendingLeadsCount})` : ''}
                         </button>
                       </div>
                     )}

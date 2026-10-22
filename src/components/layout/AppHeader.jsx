@@ -28,6 +28,7 @@ export function AppHeader() {
         {hash.startsWith('#/dashboard') && (
           <>
             <button className={dtab === 'courses' ? 'on' : ''} onClick={() => setDtab('courses')}>كورساتي</button>
+            <button className={dtab === 'inquiries' ? 'on' : ''} onClick={() => setDtab('inquiries')}>استفساراتي والدعم</button>
             <button className={dtab === 'profile' ? 'on' : ''} onClick={() => setDtab('profile')}>ملفي</button>
             <button className={dtab === 'wallet' ? 'on' : ''} onClick={() => setDtab('wallet')}>رصيدي</button>
           </>
