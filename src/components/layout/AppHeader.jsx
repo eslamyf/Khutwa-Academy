@@ -14,17 +14,78 @@ export function AppHeader() {
     logoutUser,
     pendingSubCount,
     mobileMenuOpen,
-    setMobileMenuOpen
+    setMobileMenuOpen,
+    getCourse
   } = useKhutwa();
+
+  // Determine current page context and back target
+  const parts = hash.slice(2).split('/');
+  const route = parts[0]; // course, watch, dashboard, admin, auth
+  const paramA = parts[1];
+  const paramB = parts[2];
+
+  let currentTitle = 'المنصة';
+  let backTarget = '';
+  let backLabel = 'الرئيسية';
+
+  if (route === 'course') {
+    const course = getCourse(paramA);
+    currentTitle = course ? course.title : 'تفاصيل المسار';
+    backTarget = '#j';
+    backLabel = 'كل المسارات';
+  } else if (route === 'watch') {
+    const course = getCourse(paramA);
+    currentTitle = course ? `${course.title}` : 'مشاهدة الدرس';
+    backTarget = `#/course/${paramA}`;
+    backLabel = 'صفحة المسار';
+  } else if (route === 'dashboard') {
+    currentTitle = 'لوحتي التعليمية';
+    backTarget = '';
+    backLabel = 'الرئيسية';
+  } else if (route === 'admin') {
+    currentTitle = 'لوحة الإدارة';
+    backTarget = '';
+    backLabel = 'الرئيسية';
+  } else if (route === 'auth') {
+    currentTitle = paramA === 'register' ? 'إنشاء حساب' : 'تسجيل الدخول';
+    backTarget = '';
+    backLabel = 'الرئيسية';
+  }
+
+  const handleBack = () => {
+    if (backTarget === '#j') {
+      window.location.hash = '';
+      setTimeout(() => {
+        const el = document.getElementById('j');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 60);
+    } else {
+      window.location.hash = backTarget;
+    }
+  };
 
   return (
     <header className="tb">
-      <a className="lg" href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>
-        <img className="logo-d" src="assets/Asset_103.png" alt="خطوة" />
-        <img className="logo-l" src="assets/Asset_42.png" alt="خطوة" />
-      </a>
+      <div className="tb-brand">
+        <a className="lg" href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} title="أكاديمية خطوة — الرئيسية">
+          <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" />
+          <img className="logo-l" src="assets/Asset_42.png" alt="أكاديمية خطوة" />
+        </a>
+      </div>
+
       <nav className="desktop-nav">
         <a href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>الرئيسية</a>
+
+        {backTarget && (
+          <button
+            className="tb-nav-back-link"
+            onClick={handleBack}
+            title={`الرجوع إلى: ${backLabel}`}
+          >
+            <i className="fa-solid fa-arrow-right"></i>
+            <span>{backLabel}</span>
+          </button>
+        )}
         {hash.startsWith('#/dashboard') && (
           <>
             <button className={dtab === 'courses' ? 'on' : ''} onClick={() => setDtab('courses')}>كورساتي</button>
@@ -49,10 +110,11 @@ export function AppHeader() {
           <button
             className="on"
             onClick={() => {
+              setDtab('courses');
               window.location.hash = user.role === 'admin' ? '#/admin' : '#/dashboard';
             }}
           >
-            لوحتي
+            كورساتي
           </button>
         )}
       </nav>

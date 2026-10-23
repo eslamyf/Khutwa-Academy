@@ -15,10 +15,37 @@ export function MobileMenu() {
     pendingSubCount,
     pendingLeadsCount,
     unreadRepliesCount,
-    markInquiriesAsRead
+    markInquiriesAsRead,
+    getCourse,
+    db
   } = useKhutwa();
 
   const isHome = !hash || hash === '#' || hash === '#/';
+  const parts = hash.startsWith('#/') ? hash.slice(2).split('/') : [];
+  const route = parts[0] || 'home';
+  const paramA = parts[1];
+
+  let currentTitle = 'الصفحة الرئيسية';
+  let currentIcon = 'fa-solid fa-house';
+
+  if (route === 'course') {
+    const c = getCourse ? getCourse(paramA) : null;
+    currentTitle = c ? c.title : 'تفاصيل المسار';
+    currentIcon = 'fa-solid fa-graduation-cap';
+  } else if (route === 'watch') {
+    const c = getCourse ? getCourse(paramA) : null;
+    currentTitle = c ? `مشاهدة: ${c.title}` : 'مشاهدة الدرس';
+    currentIcon = 'fa-solid fa-circle-play';
+  } else if (route === 'dashboard') {
+    currentTitle = 'لوحتي التعليمية';
+    currentIcon = 'fa-solid fa-chalkboard-user';
+  } else if (route === 'admin') {
+    currentTitle = 'لوحة إدارة الأكاديمية';
+    currentIcon = 'fa-solid fa-shield-halved';
+  } else if (route === 'auth') {
+    currentTitle = paramA === 'register' ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
+    currentIcon = 'fa-solid fa-user-lock';
+  }
 
   return (
     <div className={`mob-menu-overlay ${mobileMenuOpen ? 'open' : ''}`} aria-hidden={!mobileMenuOpen}>
@@ -54,7 +81,7 @@ export function MobileMenu() {
         {/* Centered Content Area */}
         <div className="mob-menu-content">
           {user && (
-            <div className="mob-user-clean mob-anim-item" style={{ '--i': 1 }}>
+            <div className="mob-user-clean mob-anim-item" style={{ '--i': 1.5 }}>
               <div className="mob-user-avatar">
                 <i className="fa-solid fa-circle-user"></i>
               </div>
@@ -67,16 +94,41 @@ export function MobileMenu() {
           )}
 
           <div className="mob-menu-nav-links">
+            {/* Quick Access to Training Tracks */}
+            <div className="mob-nav-group-title mob-anim-item" style={{ '--i': 2 }}>
+              المسارات التدريبية
+            </div>
+            {db && db.courses && db.courses.map((course, idx) => {
+              const isCur = route === 'course' && paramA === course.id;
+              return (
+                <button
+                  key={course.id}
+                  className={`mob-nav-link mob-anim-item ${isCur ? 'active' : ''}`}
+                  style={{ '--i': 2.2 + idx * 0.3 }}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.location.hash = `#/course/${course.id}`;
+                  }}
+                >
+                  <i className="fa-solid fa-graduation-cap" style={{ color: isCur ? 'var(--cyan)' : 'inherit' }}></i>
+                  <span>{course.title}</span>
+                  {isCur && <small className="mob-loc-pill">أنت هنا</small>}
+                </button>
+              );
+            })}
+
+            <div className="mob-nav-divider mob-anim-item" style={{ '--i': 3.2 }} />
+
             {isHome ? (
               /* Home View Context */
               <>
-                <div className="mob-nav-group-title mob-anim-item" style={{ '--i': 2 }}>
+                <div className="mob-nav-group-title mob-anim-item" style={{ '--i': 3.5 }}>
                   أقسام الموقع
                 </div>
 
                 <button
                   className="mob-nav-link active mob-anim-item"
-                  style={{ '--i': 3 }}
+                  style={{ '--i': 4 }}
                   onClick={() => {
                     setMobileMenuOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -84,7 +136,7 @@ export function MobileMenu() {
                   }}
                 >
                   <i className="fa-solid fa-house"></i>
-                  <span>الرئيسية</span>
+                  <span>الصفحة الرئيسية</span>
                 </button>
 
                 <button
@@ -142,11 +194,12 @@ export function MobileMenu() {
                       style={{ '--i': 9 }}
                       onClick={() => {
                         setMobileMenuOpen(false);
+                        setDtab('courses');
                         window.location.hash = user.role === 'admin' ? '#/admin' : '#/dashboard';
                       }}
                     >
-                      <i className={user.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-solid fa-chalkboard-user'}></i>
-                      <span>{user.role === 'admin' ? 'لوحة تحكم الإدارة' : 'لوحتي التعليمية'}</span>
+                      <i className={user.role === 'admin' ? 'fa-solid fa-shield-halved' : 'fa-solid fa-book-open-reader'}></i>
+                      <span>{user.role === 'admin' ? 'لوحة تحكم الإدارة' : 'كورساتي المشترك فيها'}</span>
                     </button>
 
                     <button

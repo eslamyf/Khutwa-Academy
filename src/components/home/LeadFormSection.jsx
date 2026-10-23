@@ -33,7 +33,10 @@ export function LeadFormSection() {
   return (
     <section className="join" id="join">
       <div className={`form ${leadSent ? 'sent' : ''}`}>
-        <h2>عندك أي استفسار؟<br />سيب بياناتك وهنتواصل معاك</h2>
+        <h2>
+          <span>عندك أي استفسار؟</span>
+          <span style={{ display: 'block', marginTop: '10px' }}>سيب بياناتك وهنتواصل معاك</span>
+        </h2>
         <form id="f" style={{ display: 'grid', gap: '18px' }} onSubmit={handleLeadSubmit}>
           <div className="opts" role="radiogroup" aria-label="المسار">
             <label>

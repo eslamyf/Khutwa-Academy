@@ -1,0 +1,542 @@
+/* Khutwa Academy - Course Editorial Design Styles (Prefix: ed-) */
+
+.course-editorial-page {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  direction: rtl;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Breadcrumbs */
+.ed-breadcrumbs {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 5vw 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--cyt);
+}
+
+.ed-breadcrumbs a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.ed-breadcrumbs a:hover {
+  color: var(--cyan);
+}
+
+.ed-breadcrumbs span {
+  opacity: 0.6;
+}
+
+/* Hero Section (ed-h2w) */
+.ed-h2w {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4vh 5vw 0;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 4vw;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.ed-eb {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cyan);
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+
+.ed-eb::before {
+  content: "";
+  width: 34px;
+  height: 2.5px;
+  background: var(--cyan);
+  border-radius: 99px;
+}
+
+h1.ed-big {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: clamp(44px, 7.5vw, 104px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+h1.ed-big span {
+  display: block;
+}
+
+h1.ed-big .ed-o {
+  color: transparent;
+  -webkit-text-stroke: 2.5px var(--cyan);
+  transition: -webkit-text-stroke 0.3s;
+}
+
+.ed-lead {
+  color: var(--cyt);
+  font-size: clamp(16px, 1.6vw, 19.5px);
+  line-height: 1.8;
+  max-width: 44ch;
+  margin: 20px 0 28px;
+}
+
+.ed-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin-bottom: 30px;
+  font-size: 15px;
+  color: var(--cyt);
+}
+
+.ed-facts span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ed-facts b {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--fg);
+}
+
+.ed-facts .ed-fact-free-chip {
+  background: rgba(43, 185, 211, 0.15);
+  border: 1px solid rgba(43, 185, 211, 0.35);
+  color: var(--cyan);
+  padding: 2px 12px;
+  border-radius: 99px;
+  font-weight: 700;
+}
+
+.ed-facts .ed-fact-free-chip b {
+  color: var(--cyan);
+}
+
+.ed-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--cyan);
+  color: #1B2050;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 16.5px;
+  padding: 13px 34px;
+  border-radius: 99px;
+  border: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(43, 185, 211, 0.35);
+}
+
+.ed-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(43, 185, 211, 0.5);
+}
+
+/* Instructor Photo Showcase (Clipped Polygon, 100% Visible & Centered) */
+.ed-ph {
+  position: relative;
+  height: min(640px, 114vw);
+  width: min(440px, 86vw);
+  margin-inline: auto;
+  background: transparent !important;
+  display: block !important;
+  padding: 0 !important;
+}
+
+.ed-s {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(16% 0, 100% 0, 100% 86%, 84% 100%, 0 100%, 0 14%);
+}
+
+.ed-s1 {
+  background: var(--cyan);
+  transform: translate(-22px, 22px);
+  opacity: 0.95;
+  z-index: 1;
+}
+
+.ed-s2 {
+  background: #1B2050;
+  border: 2px solid rgba(43, 185, 211, 0.4);
+  z-index: 2;
+  overflow: hidden;
+}
+
+.ed-s2 img {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center 15% !important;
+  display: block !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  animation: none !important;
+}
+
+.ed-vt {
+  position: absolute;
+  top: 50%;
+  left: -44px;
+  z-index: 3;
+  writing-mode: vertical-rl;
+  transform: translateY(-50%) rotate(180deg);
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.45em;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+.ed-tag {
+  position: absolute;
+  z-index: 5;
+  bottom: 8%;
+  inset-inline-end: -24px;
+  background: var(--cyan);
+  color: #1B2050;
+  padding: 10px 22px;
+  transform: rotate(-3deg);
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.45);
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.ed-tag small {
+  display: block;
+  font-family: "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  color: #1B2050;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+/* Tilted Marquee Ticker (Brand Cyan & Ink) */
+.ed-mq {
+  direction: ltr;
+  overflow: hidden;
+  background: var(--cyan);
+  color: #1B2050;
+  transform: rotate(-1.5deg);
+  margin: 80px -3vw 0;
+  padding: 13px 0;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.ed-mq div {
+  display: flex;
+  gap: 40px;
+  width: max-content;
+  animation: course-mq 28s linear infinite;
+}
+
+@keyframes course-mq {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Stations / Lessons Section (ed-rw) */
+.ed-rw {
+  max-width: 1040px;
+  margin: 90px auto 0;
+  padding: 0 5vw;
+  box-sizing: border-box;
+}
+
+.ed-rw h2 {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: clamp(28px, 4.4vw, 46px);
+  font-weight: 800;
+  color: var(--fg);
+}
+
+.ed-rw > p.ed-mu {
+  margin: 8px 0 36px;
+  font-size: 16.5px;
+  color: var(--cyt);
+}
+
+.ed-lst {
+  position: relative;
+  padding-inline-start: 32px;
+}
+
+.ed-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  background: var(--line);
+  border-radius: 4px;
+}
+
+.ed-rail i {
+  display: block;
+  width: 100%;
+  height: 0;
+  background: linear-gradient(180deg, var(--cyan) 0%, var(--indigo) 100%);
+  border-radius: 4px;
+  transition: height 0.15s linear;
+}
+
+.ed-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 26px 12px;
+  border-bottom: 1px solid var(--line);
+  transition: padding 0.35s ease, background-color 0.25s ease;
+  cursor: pointer;
+  border-radius: 14px;
+}
+
+.ed-row:hover {
+  padding-inline-start: 22px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="light"] .ed-row:hover {
+  background: rgba(27, 32, 80, 0.03);
+}
+
+.ed-nu {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 72px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--line);
+  direction: ltr;
+  text-align: center;
+  transition: all 0.4s ease;
+}
+
+.ed-row.on .ed-nu {
+  color: var(--cyan);
+  -webkit-text-stroke-color: var(--cyan);
+  transform: scale(1.04);
+}
+
+.ed-row h3 {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 6px;
+}
+
+.ed-row p {
+  font-size: 15px;
+  color: var(--cyt);
+  line-height: 1.6;
+}
+
+.ed-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--cyt);
+}
+
+.ed-meta b {
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.ed-free {
+  background: var(--cyan);
+  color: #1B2050;
+  padding: 2px 12px;
+  border-radius: 99px;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.ed-play {
+  border: 0;
+  background: var(--cyan);
+  color: #1B2050;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 13.5px;
+  padding: 6px 18px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ed-play:hover {
+  transform: scale(1.05);
+}
+
+/* Completion Band (Brand Identity: Ink & Indigo with Cyan Accents) */
+.ed-band {
+  margin: 110px 0 0;
+  background: linear-gradient(120deg, var(--cyan) 0%, var(--indigo) 100%);
+  clip-path: polygon(0 7%, 100% 0, 100% 93%, 0 100%);
+  padding: 120px 5vw;
+  text-align: center;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+.ed-band h2 {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: clamp(38px, 7.5vw, 86px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.ed-band p {
+  font-size: clamp(17px, 2vw, 21px);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 28px;
+}
+
+.ed-band .ed-cta {
+  background: #1B2050;
+  color: #ffffff;
+  border: 2px solid var(--cyan);
+}
+
+.ed-band .ed-cta:hover {
+  background: #0f1333;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.ed-sp {
+  height: 120px;
+}
+
+/* Sticky Bottom Bar (ed-bot) */
+.ed-bot {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 5vw;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25);
+  transform: translateY(100%);
+  transition: transform 0.35s ease;
+}
+
+.ed-bot.show {
+  transform: none;
+}
+
+.ed-bot strong {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--fg);
+}
+
+.ed-bot .ed-mu {
+  font-size: 14.5px;
+  color: var(--cyt);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 860px) {
+  .ed-h2w {
+    grid-template-columns: 1fr;
+  }
+
+  .ed-ph {
+    margin-top: 30px;
+  }
+
+  .ed-vt {
+    display: none;
+  }
+
+  .ed-tag {
+    inset-inline-end: 0;
+    bottom: 4%;
+    transform: none;
+    font-size: 16px;
+    padding: 8px 16px;
+  }
+
+  .ed-row {
+    grid-template-columns: 62px 1fr;
+    gap: 14px;
+  }
+
+  .ed-nu {
+    font-size: 44px;
+  }
+
+  .ed-meta {
+    grid-column: 2;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .ed-bot {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 4vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

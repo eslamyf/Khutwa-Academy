@@ -1,0 +1,614 @@
+/* Khutwa Academy - Watch Page Styles (watch-pro modern design) */
+
+.watch-page-container {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  direction: rtl;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 1. Header */
+.watch-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 4vw;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.watch-back-link {
+  text-decoration: none;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.watch-back-link:hover {
+  color: var(--cyan);
+  transform: translateX(3px);
+}
+
+.watch-course-title {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cyt);
+}
+
+.watch-progress-ring {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.watch-progress-ring svg {
+  transform: rotate(90deg) scaleX(-1);
+}
+
+.watch-theme-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--fg);
+  font-size: 1.1rem;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.watch-theme-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  transform: scale(1.05);
+}
+
+/* 2. Main Layout */
+.watch-wrap {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 4vw 70px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* 3. Stage & Player */
+.watch-stage {
+  position: relative;
+  padding: 0 0 0 22px;
+  background: var(--bg);
+}
+
+.watch-stage::before {
+  content: "";
+  position: absolute;
+  inset: 20px 20px 0 0;
+  background: var(--cyan);
+  border-radius: 24px;
+  opacity: 0.85;
+  filter: drop-shadow(0 10px 25px rgba(43, 185, 211, 0.3));
+}
+
+.watch-vid-container {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #05163f;
+  border: 3px solid var(--bg);
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7);
+}
+
+.watch-player-slot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.watch-player-slot iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Player Overlays */
+.watch-ov {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(6, 44, 63, 0.98), rgba(16, 16, 88, 0.98));
+  backdrop-filter: blur(8px);
+}
+
+.watch-ov.on {
+  display: grid;
+}
+
+.watch-ov b {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: clamp(19px, 3.2vw, 28px);
+  font-weight: 800;
+  color: #fff;
+}
+
+.watch-ov span {
+  color: #c9d0ff;
+  max-width: 40ch;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.watch-ov-icon {
+  font-size: 46px;
+  line-height: 1;
+}
+
+.watch-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--cyan);
+  color: #04124a;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 11px 28px;
+  border-radius: 99px;
+  border: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.watch-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(43, 185, 211, 0.4);
+}
+
+.watch-cta-btn.ok {
+  background: #27c485;
+  color: #04321f;
+}
+
+.watch-ghost-btn {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 10px 22px;
+  font-weight: 700;
+  font-size: 14px;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.watch-ghost-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+/* 4. Lesson Info Bar */
+.watch-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 26px 0 6px;
+}
+
+.watch-info-bar h1 {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 800;
+  color: var(--fg);
+  line-height: 1.3;
+}
+
+.watch-chips-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 6px 0 18px;
+}
+
+.watch-chip {
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 2px 14px;
+  font-size: 13.5px;
+  color: var(--cyt);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.watch-chip-free {
+  background: var(--cyan);
+  color: #04124a;
+  padding: 2px 12px;
+  border-radius: 99px;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Action Controls Row */
+.watch-actions-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.watch-autoplay-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cyt);
+  margin-inline-start: auto;
+  cursor: pointer;
+}
+
+.watch-autoplay-switch input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 40px;
+  height: 22px;
+  border-radius: 99px;
+  background: var(--line);
+  position: relative;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.watch-autoplay-switch input::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: 0.2s ease;
+}
+
+.watch-autoplay-switch input:checked {
+  background: var(--cyan);
+}
+
+.watch-autoplay-switch input:checked::after {
+  inset-inline-start: 21px;
+}
+
+/* 5. Tabs */
+.watch-tabs-nav {
+  display: flex;
+  gap: 6px;
+  margin-top: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.watch-tab-btn {
+  background: none;
+  border: 0;
+  padding: 10px 18px;
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cyt);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.watch-tab-btn:hover {
+  color: var(--fg);
+}
+
+.watch-tab-btn.on {
+  color: var(--cyan);
+  border-color: var(--cyan);
+}
+
+.watch-tab-pane {
+  display: none;
+  padding: 22px 0;
+  max-width: 72ch;
+  line-height: 1.8;
+}
+
+.watch-tab-pane.on {
+  display: block;
+}
+
+.watch-tab-pane h3 {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.watch-tab-pane p {
+  color: var(--cyt);
+  font-size: 15.5px;
+}
+
+.watch-tab-pane ul {
+  padding-inline-start: 22px;
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--fg);
+}
+
+.watch-tab-pane textarea {
+  width: 100%;
+  min-height: 150px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--fg);
+  padding: 16px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.7;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.watch-tab-pane textarea:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(43, 185, 211, 0.2);
+}
+
+.watch-notes-status {
+  display: block;
+  font-size: 12.5px;
+  color: var(--cyt);
+  margin-top: 6px;
+}
+
+.watch-resource-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-top: 10px;
+  background: var(--card);
+  font-weight: 600;
+}
+
+.watch-shortcuts-hint {
+  margin-top: 22px;
+  font-size: 13.5px;
+  color: var(--cyt);
+}
+
+.watch-shortcuts-hint kbd {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* 6. Sidebar (Course Content) */
+.watch-sidebar {
+  position: sticky;
+  top: 72px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 22px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  box-shadow: 0 14px 35px -10px rgba(0, 0, 0, 0.25);
+}
+
+.watch-sidebar h2 {
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.watch-progress-bar {
+  height: 6px;
+  background: var(--line);
+  border-radius: 99px;
+  margin: 14px 0 6px;
+  overflow: hidden;
+}
+
+.watch-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--cyan), var(--indigo));
+  transition: width 0.4s ease;
+}
+
+.watch-progress-label {
+  display: block;
+  color: var(--cyt);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.watch-lessons-queue {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.watch-lesson-btn {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  text-align: start;
+  background: none;
+  border: 0;
+  border-radius: 14px;
+  padding: 10px;
+  color: var(--fg);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.watch-lesson-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] .watch-lesson-btn:hover {
+  background: rgba(27, 32, 80, 0.05);
+}
+
+.watch-lesson-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--line);
+  font-family: "Readex Pro", "Cairo", sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--fg);
+  flex-shrink: 0;
+}
+
+.watch-lesson-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.watch-lesson-title {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fg);
+}
+
+.watch-lesson-meta {
+  color: var(--cyt);
+  font-size: 12.5px;
+}
+
+.watch-lesson-btn.on {
+  background: rgba(43, 185, 211, 0.1);
+  box-shadow: inset -4px 0 0 var(--cyan);
+}
+
+.watch-lesson-btn.on .watch-lesson-num {
+  background: var(--cyan);
+  color: #04124a;
+  border-color: var(--cyan);
+}
+
+.watch-lesson-btn.dn .watch-lesson-num {
+  background: #27c485;
+  border-color: #27c485;
+  color: #04321f;
+}
+
+.watch-lesson-btn.lc {
+  opacity: 0.65;
+}
+
+/* 7. Responsive Breakpoints */
+@media (max-width: 960px) {
+  .watch-wrap {
+    grid-template-columns: 1fr;
+    padding-top: 0;
+  }
+
+  .watch-stage {
+    position: sticky;
+    top: 56px;
+    z-index: 40;
+    margin-inline: -4vw;
+    padding: 10px 4vw 12px;
+    background: var(--bg);
+  }
+
+  .watch-stage::before {
+    display: none;
+  }
+
+  .watch-vid-container {
+    border: 0;
+    border-radius: 14px;
+  }
+
+  .watch-sidebar {
+    position: static;
+    max-height: none;
+    margin-top: 10px;
+  }
+
+  .watch-course-title {
+    display: none;
+  }
+
+  .watch-autoplay-switch {
+    margin-inline-start: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

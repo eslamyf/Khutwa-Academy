@@ -34,11 +34,49 @@ export function TracksJourney() {
       const W = J.clientWidth;
       H_val = J.clientHeight;
       const m = W < 800;
-      const xs = m ? [0.9, 0.8, 0.9, 0.82] : [0.3, 0.7, 0.3, 0.5];
-      ys_val = sts.map((s) => +s.dataset.y * H_val);
+      const xs = m ? [0.88, 0.82, 0.88, 0.82] : [0.3, 0.7, 0.3, 0.5];
+
+      const titleEl = J.querySelector('.j-title-wrap');
+      const titleBottom = titleEl ? (titleEl.offsetTop + titleEl.offsetHeight) : (m ? 110 : 130);
+      const h0 = sts[0] ? sts[0].offsetHeight : (m ? 340 : 460);
+      const h1 = sts[1] ? sts[1].offsetHeight : (m ? 340 : 460);
+      const h2 = sts[2] ? sts[2].offsetHeight : (m ? 340 : 460);
+
+      if (m) {
+        // In mobile screens, ensure first card starts cleanly below the section title
+        const y0 = titleBottom + (h0 / 2) + 35;
+        const y1 = y0 + (h0 / 2) + (h1 / 2) + 65;
+        const y2 = y1 + (h1 / 2) + (h2 / 2) + 65;
+        ys_val = [y0, y1, y2];
+      } else {
+        // Desktop / Tablet dynamic spacing: never overlap cards or mentor details
+        const y0 = titleBottom + (h0 / 2) + 70;
+        const y1 = y0 + Math.max(h0 * 0.78, 430);
+        const y2 = y1 + Math.max(h1 * 0.78, 430);
+        ys_val = [y0, y1, y2];
+      }
+
+      // Position the ending headline safely below the final track
       const endEl = endRef.current;
-      const endY = endEl ? Math.max(ys_val[2] + 120, endEl.offsetTop - (m ? 60 : 70)) : (H_val * (m ? 0.82 : 0.88));
-      const pts = [[W * (m ? 0.88 : 0.5), 0], ...ys_val.map((y, i) => [W * xs[i], y]), [W * 0.5, endY]];
+      const endTextTop = ys_val[2] + (h2 / 2) + (m ? 85 : 130);
+      if (endEl) {
+        endEl.style.top = `${endTextTop}px`;
+        endEl.style.bottom = 'auto';
+      }
+
+      // Ensure container has plenty of breathing room
+      const requiredHeight = endTextTop + (endEl ? endEl.offsetHeight : 80) + (m ? 80 : 130);
+      if (H_val < requiredHeight) {
+        J.style.minHeight = `${requiredHeight}px`;
+        H_val = requiredHeight;
+      }
+
+      // Smooth path start from underneath section title, ending cleanly above footer banner
+      const startY = titleBottom + 12;
+      const startX = m ? W * 0.88 : W * 0.5;
+      const endY = endTextTop - 25;
+
+      const pts = [[startX, startY], ...ys_val.map((y, i) => [W * xs[i], y]), [W * 0.5, endY]];
 
       let d = `M${pts[0][0]},${pts[0][1]}`;
       for (let i = 1; i < pts.length; i++) {
@@ -56,14 +94,17 @@ export function TracksJourney() {
       sts.forEach((s, i) => {
         s.style.top = ys_val[i] - s.offsetHeight / 2 + 'px';
         if (m) {
-          s.style.insetInlineEnd = '4vw';
-          s.style.insetInlineStart = 'auto';
+          s.style.insetInlineEnd = '16px';
+          s.style.insetInlineStart = '16px';
+          s.style.marginInline = 'auto';
         } else if (xs[i] < 0.5) {
           s.style.insetInlineStart = '6%';
           s.style.insetInlineEnd = 'auto';
+          s.style.marginInline = '0';
         } else {
           s.style.insetInlineEnd = '6%';
           s.style.insetInlineStart = 'auto';
+          s.style.marginInline = '0';
         }
       });
       updateScroll();
@@ -109,7 +150,6 @@ export function TracksJourney() {
   return (
     <section className="j" id="j" ref={journeyRef}>
       <div className="j-title-wrap">
-        <span className="j-tag">المسارات والمعسكرات التدريبية</span>
         <h2>اختار مسارك</h2>
       </div>
       <svg aria-hidden="true">

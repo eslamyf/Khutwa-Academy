@@ -2,7 +2,18 @@ import React from 'react';
 import { useKhutwa } from '../../hooks';
 
 export function Header() {
-  const { user, toggleTheme, logoutUser, mobileMenuOpen, setMobileMenuOpen } = useKhutwa();
+  const { user, toggleTheme, logoutUser, mobileMenuOpen, setMobileMenuOpen, setDtab, showToast } = useKhutwa();
+
+  const handleMyCoursesClick = (e) => {
+    e.preventDefault();
+    if (!user) {
+      showToast('يرجى تسجيل الدخول أولاً لعرض كورساتك المشترك فيها');
+      window.location.hash = '#/auth/login';
+      return;
+    }
+    setDtab('courses');
+    window.location.hash = user.role === 'admin' ? '#/admin' : '#/dashboard';
+  };
 
   return (
     <header>
@@ -30,6 +41,13 @@ export function Header() {
           }}
         >
           الرئيسية
+        </a>
+        <a
+          href="#/dashboard"
+          onClick={handleMyCoursesClick}
+          title="الكورسات والمسارات المشترك بها"
+        >
+          كورساتي
         </a>
         <a href="#stats">الأرقام</a>
         <a href="#j">المسارات</a>

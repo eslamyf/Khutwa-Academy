@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useKhutwa } from '../../hooks';
 import { AuthView } from '../modals/AuthView.jsx';
 import { CourseView } from './CourseView.jsx';
-import { WatchView } from './WatchView.jsx';
 import { StudentDashboard } from './StudentDashboard.jsx';
 import { AdminDashboard } from './AdminDashboard.jsx';
+
+// Code-split / Lazy load the WatchView component for performance
+const WatchView = lazy(() => import('./WatchView.jsx'));
 
 export function AppRouter() {
   const { hash, user } = useKhutwa();
@@ -32,7 +34,18 @@ export function AppRouter() {
     return <CourseView id={a} />;
   }
   if (r === 'watch') {
-    return <WatchView cid={a} lid={b} />;
+    return (
+      <Suspense
+        fallback={
+          <div style={{ minHeight: '80vh', display: 'grid', placeContent: 'center', textAlign: 'center' }}>
+            <div className="video-loading-spinner" style={{ width: 40, height: 40, margin: '0 auto 14px' }} />
+            <p style={{ fontWeight: 700, color: 'var(--cyan)' }}>جاري تحميل مشغل الدروس...</p>
+          </div>
+        }
+      >
+        <WatchView cid={a} lid={b} />
+      </Suspense>
+    );
   }
   if (r === 'dashboard') {
     return <StudentDashboard />;

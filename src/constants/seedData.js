@@ -3,7 +3,7 @@ export const DB_KEY = 'khutwa_db_v1';
 export const SESSION_KEY = 'khutwa_session';
 
 export const gid = (p) => p + Math.random().toString(36).slice(2, 9);
-export const L = (a) => a.map(([title, min, url]) => ({ id: gid('l'), title, min, url: url || '' }));
+export const L = (a, p = 'l') => a.map(([title, min, url], idx) => ({ id: `${p}_${String(idx + 1).padStart(2, '0')}`, title, min, url: url || '' }));
 
 export const TX = { topup: 'شحن رصيد', purchase: 'اشتراك', adjust: 'تعديل', grant: 'اشتراك من الأدمن' };
 export const YEARS = ['الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'خريج'];
@@ -36,13 +36,13 @@ export function initialSeed() {
         id: 'frontend',
         title: 'معسكر تطوير واجهات الويب',
         instructor: 'م. إسلام ياسر',
-        instructorRole: 'Senior Frontend Engineer & Web Mentor',
+        instructorRole: 'Senior Frontend Engineer & Web Instructor',
         instructorAvatar: 'assets/mentors/eslam.jpg',
         weeks: 8,
         price: 650,
         pub: true,
         img: 'assets/courses/frontend.jpg',
-        desc: '٨ أسابيع تبني فيها واجهات مواقع حقيقية خطوة بخطوة، مع إرشاد فردي أسبوعي.',
+        desc: '٨ أسابيع تبني فيها واجهات مواقع حقيقية خطوة بخطوة، مع متابعة عملية وتطبيق أسبوعي.',
         outcomes: [
           'تبني صفحة ويب متجاوبة من الصفر',
           'تربط التصميم بالكود وتنظم مشروعك على GitHub',
@@ -56,7 +56,7 @@ export function initialSeed() {
           ['مشروع الأسبوع: صفحة شخصية', 28, 'https://www.youtube.com/watch?v=UB1O30fR-EE'],
           ['التجاوب مع الموبايل', 22, 'https://www.youtube.com/watch?v=1Rs2ND1ryYc'],
           ['رفع المشروع أونلاين', 15, 'https://www.youtube.com/watch?v=LbChVEs_mLs']
-        ])
+        ], 'fe')
       },
       {
         id: 'ux',
@@ -81,7 +81,7 @@ export function initialSeed() {
           ['الألوان والخطوط', 22, 'https://www.youtube.com/watch?v=8TCjKKReoo8'],
           ['النموذج التفاعلي', 30, 'https://www.youtube.com/watch?v=-qMP94fKHa4'],
           ['عرض مشروعك', 15, 'https://www.youtube.com/watch?v=LkX8acAE8_A']
-        ])
+        ], 'ux')
       },
       {
         id: 'marketing',
@@ -106,7 +106,7 @@ export function initialSeed() {
           ['الجدولة والنشر', 20, 'https://www.youtube.com/watch?v=7RACMcT0vLg'],
           ['قياس النتائج', 22, 'https://www.youtube.com/watch?v=STbhc0Rvzao'],
           ['مشروع حملة كاملة', 30, 'https://www.youtube.com/watch?v=5a-RkzUEqAM']
-        ])
+        ], 'mkt')
       }
     ],
     enr: [],
