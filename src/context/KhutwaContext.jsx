@@ -192,10 +192,48 @@ export function KhutwaProvider({ children }) {
     return isUserLead && l.reply && !l.readByStudent;
   }).length : 0;
 
-  const markInquiriesAsRead = () => {
+  const userNotifications = user ? (db.notifications || []).filter((n) => n.userId === user.id || n.userId === 'all') : [];
+  const unreadNotifsCount = user ? userNotifications.filter((n) => !n.read).length : 0;
+
+  // Total student notifications unread count
+  const totalStudentUnreadCount = unreadRepliesCount + unreadNotifsCount;
+
+  // Add Notification helper
+  const addNotification = ({ userId, title, message, type = 'info', link = '#/dashboard', dtab = 'notifications', courseId = null, leadId = null }) => {
+    const newNotif = {
+      id: gid('notif'),
+      userId,
+      title,
+      message,
+      type,
+      link,
+      dtab,
+      courseId,
+      leadId,
+      date: Date.now(),
+      read: false
+    };
+    const nextDb = {
+      ...db,
+      notifications: [newNotif, ...(db.notifications || [])]
+    };
+    saveDb(nextDb);
+    return newNotif;
+  };
+
+  // Mark all notifications and inquiry replies as read for current student
+  const markAllNotificationsAsRead = () => {
     if (!user) return;
     let changed = false;
-    const updatedLeads = (db.leads || []).map((l) => {
+    const nextNotifs = (db.notifications || []).map((n) => {
+      if ((n.userId === user.id || n.userId === 'all') && !n.read) {
+        changed = true;
+        return { ...n, read: true, readAt: Date.now() };
+      }
+      return n;
+    });
+
+    const nextLeads = (db.leads || []).map((l) => {
       const isUserLead = l.userId === user.id ||
         (user.phone && l.phone === user.phone) ||
         (user.email && l.userEmail === user.email);
@@ -205,9 +243,29 @@ export function KhutwaProvider({ children }) {
       }
       return l;
     });
+
     if (changed) {
-      saveDb({ ...db, leads: updatedLeads });
+      saveDb({ ...db, notifications: nextNotifs, leads: nextLeads });
     }
+  };
+
+  const markSingleNotificationAsRead = (notifId) => {
+    if (!user || !notifId) return;
+    let changed = false;
+    const nextNotifs = (db.notifications || []).map((n) => {
+      if (n.id === notifId && !n.read) {
+        changed = true;
+        return { ...n, read: true, readAt: Date.now() };
+      }
+      return n;
+    });
+    if (changed) {
+      saveDb({ ...db, notifications: nextNotifs });
+    }
+  };
+
+  const markInquiriesAsRead = () => {
+    markAllNotificationsAsRead();
   };
 
   const markSingleInquiryAsRead = (leadId) => {
@@ -224,6 +282,35 @@ export function KhutwaProvider({ children }) {
       saveDb({ ...db, leads: updatedLeads });
     }
   };
+
+  // Ensure default welcome notification for student if empty
+  useEffect(() => {
+    if (user && user.role === 'student') {
+      const userNotifs = (db.notifications || []).filter((n) => n.userId === user.id);
+      const userLeads = (db.leads || []).filter((l) => {
+        return l.userId === user.id ||
+          (user.phone && l.phone === user.phone) ||
+          (user.email && l.userEmail === user.email);
+      });
+      if (userNotifs.length === 0 && userLeads.length === 0) {
+        const welcomeNotif = {
+          id: `welcome_${user.id}`,
+          userId: user.id,
+          type: 'welcome',
+          title: 'أهلاً بك في أكاديمية خطوة! 🚀',
+          message: 'تم تفعيل حسابك بنجاح. تصفح المسارات التدريبية المتاحة وابدأ أولى خطواتك الآن!',
+          date: user.created || Date.now(),
+          read: false,
+          link: '#j',
+          dtab: 'courses'
+        };
+        saveDb({
+          ...db,
+          notifications: [welcomeNotif, ...(db.notifications || [])]
+        });
+      }
+    }
+  }, [user?.id]);
 
   const value = {
     db,
@@ -252,6 +339,12 @@ export function KhutwaProvider({ children }) {
     pendingSubCount,
     pendingLeadsCount,
     unreadRepliesCount,
+    unreadNotifsCount,
+    totalStudentUnreadCount,
+    userNotifications,
+    addNotification,
+    markAllNotificationsAsRead,
+    markSingleNotificationAsRead,
     markInquiriesAsRead,
     markSingleInquiryAsRead,
     getCourse,

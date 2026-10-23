@@ -1,5 +1,6 @@
 import React from 'react';
 import { useKhutwa } from '../../hooks';
+import { NotificationBell } from '../common/NotificationBell';
 
 export function Header() {
   const { user, toggleTheme, logoutUser, mobileMenuOpen, setMobileMenuOpen, setDtab, showToast } = useKhutwa();
@@ -55,6 +56,7 @@ export function Header() {
       </nav>
 
       <div className="hr">
+        <NotificationBell />
         <button className="tg" onClick={toggleTheme} aria-label="تبديل الوضع"></button>
 
         {/* Desktop Auth */}

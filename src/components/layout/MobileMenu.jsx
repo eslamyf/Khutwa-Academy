@@ -15,6 +15,7 @@ export function MobileMenu() {
     pendingSubCount,
     pendingLeadsCount,
     unreadRepliesCount,
+    totalStudentUnreadCount,
     markInquiriesAsRead,
     getCourse,
     db
@@ -297,6 +298,15 @@ export function MobileMenu() {
                       }}
                     >
                       <i className="fa-solid fa-book-open"></i> الدورات المسجلة
+                    </button>
+                    <button
+                      className={`mob-sub-link ${dtab === 'notifications' ? 'active' : ''}`}
+                      onClick={() => {
+                        setDtab('notifications');
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <i className="fa-solid fa-bell"></i> الإشعارات والتنبيهات {totalStudentUnreadCount > 0 ? `(${totalStudentUnreadCount})` : ''}
                     </button>
                     <button
                       className={`mob-sub-link ${dtab === 'inquiries' ? 'active' : ''}`}

@@ -14,12 +14,19 @@ export function StudentDashboard() {
     getCourse,
     markInquiriesAsRead,
     markSingleInquiryAsRead,
+    markAllNotificationsAsRead,
+    markSingleNotificationAsRead,
+    totalStudentUnreadCount,
+    unreadRepliesCount,
+    unreadNotifsCount,
+    userNotifications,
     setDialogContent,
     copyToClipboard
   } = useKhutwa();
   const [newInqText, setNewInqText] = useState('');
   const [newInqTrack, setNewInqTrack] = useState('frontend');
   const [inqSent, setInqSent] = useState(false);
+  const [notifFilter, setNotifFilter] = useState('all'); // all | unread | inquiries | system
 
   if (!user) return null;
   const p = user.profile || {};
@@ -34,6 +41,47 @@ export function StudentDashboard() {
     (user.phone && l.phone === user.phone) ||
     (user.email && l.userEmail === user.email)
   );
+
+  // Prepare unified notifications list
+  const studentInqNotifs = myInquiries.filter((l) => l.reply).map((l) => ({
+    id: `inq_${l.id}`,
+    originalId: l.id,
+    kind: 'inquiry',
+    type: 'inquiry_reply',
+    title: 'رد إدارة خطوة على استفسارك',
+    text: l.reply,
+    userQuestion: l.message,
+    trackId: l.track,
+    date: l.repliedAt || l.date,
+    read: !!l.readByStudent,
+    link: '#/dashboard',
+    dtab: 'inquiries'
+  }));
+
+  const studentSysNotifs = (db.notifications || []).filter((notif) => {
+    return notif.userId === user.id || notif.userId === 'all';
+  }).map((notif) => ({
+    id: `notif_${notif.id}`,
+    originalId: notif.id,
+    kind: 'notification',
+    type: notif.type || 'info',
+    title: notif.title || 'إشعار من الأكاديمية',
+    text: notif.message,
+    courseId: notif.courseId,
+    date: notif.date,
+    read: !!notif.read,
+    link: notif.link || '#/dashboard',
+    dtab: notif.dtab || 'notifications'
+  }));
+
+  const allStudentNotifs = [...studentInqNotifs, ...studentSysNotifs].sort((a, b) => b.date - a.date);
+
+  const filteredNotifs = allStudentNotifs.filter((item) => {
+    if (notifFilter === 'unread') return !item.read;
+    if (notifFilter === 'inquiries') return item.kind === 'inquiry';
+    if (notifFilter === 'system') return item.kind === 'notification';
+    return true;
+  });
 
   return (
     <div className="wrap">
@@ -56,6 +104,31 @@ export function StudentDashboard() {
       {dtab === 'courses' && (
         <>
           <h1>أهلًا {user.name.split(' ')[0]}</h1>
+
+          {totalStudentUnreadCount > 0 && (
+            <div className="banner notif-highlight-banner" style={{ borderInlineStartColor: 'var(--cyan)', marginBottom: '22px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                <div className="notif-banner-badge-icon">
+                  <i className="fa-solid fa-bell"></i>
+                  <span className="notif-beacon-dot" />
+                </div>
+                <div>
+                  <b style={{ fontSize: '1.02rem' }}>لديك {totalStudentUnreadCount} إشعار جديد في حسابك!</b>
+                  <p className="hint" style={{ margin: '4px 0 0' }}>
+                    تابع ردود الإدارة على استفساراتك وتأكيدات تفعيل الكورسات وشحن المحفظة.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => setDtab('notifications')}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                عرض الإشعارات ({totalStudentUnreadCount}) <i className="fa-solid fa-arrow-left" style={{ marginInlineStart: '4px' }}></i>
+              </button>
+            </div>
+          )}
 
           {userPendingCourses.length > 0 && (
             <div style={{ marginBottom: '24px' }}>
@@ -463,6 +536,212 @@ export function StudentDashboard() {
               <div className="admin-empty-icon"><i className="fa-solid fa-comments"></i></div>
               <div className="admin-empty-title">لا توجد استفسارات سابقة</div>
               <div className="admin-empty-desc">يمكنك كتابة أي استفسار أو سؤال في النموذج بالأعلى وسيقوم فريق الأكاديمية بالرد عليك مباشرة.</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================
+          TAB: NOTIFICATIONS CENTER (مركز الإشعارات والتنبيهات)
+          ======================================================== */}
+      {dtab === 'notifications' && (
+        <div className="notifs-center-view">
+          <div className="notif-center-header">
+            <div>
+              <div className="notif-center-badge">
+                <i className="fa-solid fa-bell"></i>
+                مركز الإشعارات والتنبيهات
+              </div>
+              <h1 style={{ margin: '8px 0 6px', fontSize: '1.8rem', fontWeight: 900 }}>
+                كل التنبيهات والإشعارات
+              </h1>
+              <p className="ds" style={{ margin: 0 }}>
+                تابع ردود إدارة الأكاديمية على استفساراتك وتأكيدات تفعيل الكورسات وشحن المحفظة.
+              </p>
+            </div>
+
+            {totalStudentUnreadCount > 0 && (
+              <button
+                type="button"
+                className="btn btn-sm btn-outline notif-header-mark-all"
+                onClick={() => {
+                  if (markAllNotificationsAsRead) markAllNotificationsAsRead();
+                  showToast('تم تحديد جميع الإشعارات كمقروءة');
+                }}
+              >
+                <i className="fa-solid fa-check-double" style={{ marginInlineEnd: '6px' }}></i>
+                تحديد الكل كمقروء ({totalStudentUnreadCount})
+              </button>
+            )}
+          </div>
+
+          {/* Filter Pills */}
+          <div className="notif-filter-bar">
+            <button
+              type="button"
+              className={`notif-filter-chip ${notifFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setNotifFilter('all')}
+            >
+              الكل ({allStudentNotifs.length})
+            </button>
+            <button
+              type="button"
+              className={`notif-filter-chip ${notifFilter === 'unread' ? 'active' : ''}`}
+              onClick={() => setNotifFilter('unread')}
+            >
+              غير المقروءة ({totalStudentUnreadCount})
+            </button>
+            <button
+              type="button"
+              className={`notif-filter-chip ${notifFilter === 'inquiries' ? 'active' : ''}`}
+              onClick={() => setNotifFilter('inquiries')}
+            >
+              ردود الاستفسارات ({studentInqNotifs.length})
+            </button>
+            <button
+              type="button"
+              className={`notif-filter-chip ${notifFilter === 'system' ? 'active' : ''}`}
+              onClick={() => setNotifFilter('system')}
+            >
+              تنبيهات الأكاديمية ({studentSysNotifs.length})
+            </button>
+          </div>
+
+          {/* Notifications List */}
+          {filteredNotifs.length > 0 ? (
+            <div className="notif-cards-grid">
+              {filteredNotifs.map((item) => {
+                const isUnread = !item.read;
+                let iconClass = 'fa-solid fa-bell';
+                let tagLabel = 'أكاديمية خطوة';
+                let tagColor = 'var(--cyan)';
+
+                if (item.type === 'inquiry_reply') {
+                  iconClass = 'fa-solid fa-comments';
+                  tagLabel = item.trackId ? (getCourse(item.trackId)?.title || 'رد على استفسار') : 'رد الإدارة';
+                  tagColor = '#f59e0b';
+                } else if (item.type === 'course_approved') {
+                  iconClass = 'fa-solid fa-circle-check';
+                  tagLabel = 'تم تفعيل الكورس';
+                  tagColor = '#22c55e';
+                } else if (item.type === 'topup_approved') {
+                  iconClass = 'fa-solid fa-coins';
+                  tagLabel = 'شحن رصيد المحفظة';
+                  tagColor = 'var(--cyan)';
+                } else if (item.type === 'welcome') {
+                  iconClass = 'fa-solid fa-rocket';
+                  tagLabel = 'ترحيب';
+                  tagColor = '#8b5cf6';
+                }
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`notif-dashboard-card ${isUnread ? 'is-unread' : 'is-read'}`}
+                  >
+                    <div className="notif-db-card-top">
+                      <div className="notif-db-card-icon" style={{ color: tagColor, background: `rgba(43, 185, 211, 0.1)` }}>
+                        <i className={iconClass}></i>
+                      </div>
+                      <div className="notif-db-card-meta">
+                        <span className="notif-db-tag" style={{ color: tagColor }}>
+                          {tagLabel}
+                        </span>
+                        <span className="notif-db-date">
+                          <i className="fa-regular fa-clock" style={{ marginInlineEnd: '4px' }}></i>
+                          {fmt(item.date)}
+                        </span>
+                      </div>
+                      {isUnread && (
+                        <span className="notif-db-unread-badge">
+                          <span className="notif-beacon-dot" /> جديد
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="notif-db-card-body">
+                      <h3 className="notif-db-title">{item.title}</h3>
+                      <p className="notif-db-text">{item.text}</p>
+
+                      {item.userQuestion && (
+                        <div className="notif-db-question-box">
+                          <span className="notif-db-q-label">سؤالك المرسل:</span>
+                          <p className="notif-db-q-text">«{item.userQuestion}»</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="notif-db-card-footer">
+                      <div className="notif-db-actions-left">
+                        {item.type === 'course_approved' && item.courseId && (
+                          <a className="btn btn-sm" href={`#/watch/${item.courseId}/${getCourse(item.courseId)?.lessons[0]?.id || ''}`}>
+                            مشاهدة الكورس الآن <i className="fa-solid fa-arrow-left" style={{ marginInlineStart: '4px' }}></i>
+                          </a>
+                        )}
+
+                        {item.kind === 'inquiry' && (
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            onClick={() => {
+                              if (markSingleInquiryAsRead) markSingleInquiryAsRead(item.originalId);
+                              setDtab('inquiries');
+                            }}
+                          >
+                            عرض المحادثة كاملة <i className="fa-solid fa-arrow-left" style={{ marginInlineStart: '4px' }}></i>
+                          </button>
+                        )}
+
+                        {item.type === 'topup_approved' && (
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            onClick={() => {
+                              if (markSingleNotificationAsRead) markSingleNotificationAsRead(item.originalId);
+                              setDtab('wallet');
+                            }}
+                          >
+                            عرض المحفظة والرصيد <i className="fa-solid fa-arrow-left" style={{ marginInlineStart: '4px' }}></i>
+                          </button>
+                        )}
+
+                        {item.type === 'welcome' && (
+                          <a className="btn btn-sm" href="#j">
+                            استكشاف المسارات <i className="fa-solid fa-arrow-left" style={{ marginInlineStart: '4px' }}></i>
+                          </a>
+                        )}
+                      </div>
+
+                      {isUnread && (
+                        <button
+                          type="button"
+                          className="notif-db-chip-read"
+                          onClick={() => {
+                            if (item.kind === 'inquiry') {
+                              if (markSingleInquiryAsRead) markSingleInquiryAsRead(item.originalId);
+                            } else {
+                              if (markSingleNotificationAsRead) markSingleNotificationAsRead(item.originalId);
+                            }
+                            showToast('تم تحديد الإشعار كمقروء');
+                          }}
+                        >
+                          <i className="fa-solid fa-check" style={{ marginInlineEnd: '4px' }}></i> تحديد كمقروء
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="admin-empty-state" style={{ marginTop: '30px' }}>
+              <div className="admin-empty-icon"><i className="fa-regular fa-bell"></i></div>
+              <div className="admin-empty-title">لا توجد إشعارات في هذا التبويب</div>
+              <div className="admin-empty-desc">
+                {notifFilter === 'unread'
+                  ? 'تمت قراءة جميع الإشعارات والتنبيهات الخاصة بك بالكامل.'
+                  : 'ستظهر جميع إشعارات وتنبيهات الأكاديمية وردود المدربين هنا.'}
+              </div>
             </div>
           )}
         </div>

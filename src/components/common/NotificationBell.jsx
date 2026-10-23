@@ -6,13 +6,16 @@ export function NotificationBell() {
   const {
     user,
     db,
+    totalStudentUnreadCount,
     unreadRepliesCount,
+    unreadNotifsCount,
     pendingLeadsCount,
     pendingSubCount,
     setDtab,
     setAtab,
-    markInquiriesAsRead,
+    markAllNotificationsAsRead,
     markSingleInquiryAsRead,
+    markSingleNotificationAsRead,
     getCourse
   } = useKhutwa();
 
@@ -32,18 +35,57 @@ export function NotificationBell() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  if (!user) return null;
+  const isAdmin = user && user.role === 'admin';
+  const isGuest = !user;
 
-  const isAdmin = user.role === 'admin';
-  const unreadCount = isAdmin ? (pendingLeadsCount + pendingSubCount) : unreadRepliesCount;
+  // Unread badge count calculation
+  const unreadCount = isGuest
+    ? 1
+    : isAdmin
+      ? (pendingLeadsCount + pendingSubCount)
+      : (totalStudentUnreadCount ?? (unreadRepliesCount + unreadNotifsCount));
 
-  // Prepare notifications list for Student
-  const studentInquiries = (db.leads || []).filter((l) => {
-    const isUserLead = l.userId === user.id ||
-      (user.phone && l.phone === user.phone) ||
-      (user.email && l.userEmail === user.email);
-    return isUserLead && l.reply;
-  }).sort((a, b) => (b.repliedAt || b.date) - (a.repliedAt || a.date));
+  // Prepare unified list for Student: Inquiries replies + Platform notifications
+  let studentItems = [];
+  if (user && !isAdmin) {
+    const inqItems = (db.leads || []).filter((l) => {
+      const isUserLead = l.userId === user.id ||
+        (user.phone && l.phone === user.phone) ||
+        (user.email && l.userEmail === user.email);
+      return isUserLead && l.reply;
+    }).map((l) => ({
+      id: `inq_${l.id}`,
+      originalId: l.id,
+      kind: 'inquiry',
+      type: 'inquiry_reply',
+      title: 'رد إدارة خطوة على استفسارك',
+      text: l.reply,
+      userQuestion: l.message,
+      trackId: l.track,
+      date: l.repliedAt || l.date,
+      read: !!l.readByStudent,
+      link: '#/dashboard',
+      dtab: 'inquiries'
+    }));
+
+    const notifItems = (db.notifications || []).filter((n) => {
+      return n.userId === user.id || n.userId === 'all';
+    }).map((n) => ({
+      id: `notif_${n.id}`,
+      originalId: n.id,
+      kind: 'notification',
+      type: n.type || 'info',
+      title: n.title || 'إشعار جديد',
+      text: n.message,
+      courseId: n.courseId,
+      date: n.date,
+      read: !!n.read,
+      link: n.link || '#/dashboard',
+      dtab: n.dtab || 'notifications'
+    }));
+
+    studentItems = [...inqItems, ...notifItems].sort((a, b) => b.date - a.date);
+  }
 
   // Prepare notifications list for Admin
   const adminPendingLeads = (db.leads || []).filter((l) => l.status === 'new' || !l.reply);
@@ -55,20 +97,28 @@ export function NotificationBell() {
 
   const handleMarkAllRead = (e) => {
     e.stopPropagation();
-    markInquiriesAsRead();
+    if (markAllNotificationsAsRead) {
+      markAllNotificationsAsRead();
+    }
   };
 
-  const handleOpenDetail = (leadId) => {
-    markSingleInquiryAsRead(leadId);
+  const handleStudentItemClick = (item) => {
+    if (item.kind === 'inquiry') {
+      if (markSingleInquiryAsRead) markSingleInquiryAsRead(item.originalId);
+    } else {
+      if (markSingleNotificationAsRead) markSingleNotificationAsRead(item.originalId);
+    }
     setIsOpen(false);
-    window.location.hash = '#/dashboard';
-    setDtab('inquiries');
+    window.location.hash = item.link || '#/dashboard';
+    if (setDtab && item.dtab) {
+      setDtab(item.dtab);
+    }
   };
 
   const handleAdminGoTo = (tab) => {
     setIsOpen(false);
     window.location.hash = '#/admin';
-    setAtab(tab);
+    if (setAtab) setAtab(tab);
   };
 
   return (
@@ -79,18 +129,29 @@ export function NotificationBell() {
         onClick={handleToggle}
         aria-label="مركز الإشعارات والتنبيهات"
         aria-expanded={isOpen}
-        title={isAdmin ? `الاستفسارات والطلبات الجديدة (${unreadCount})` : `الإشعارات والردود (${unreadCount})`}
+        title={
+          isGuest
+            ? 'تنبيهات أكاديمية خطوة'
+            : isAdmin
+              ? `الطلبات والاستفسارات الجديدة (${unreadCount})`
+              : `الإشعارات والتنبيهات (${unreadCount})`
+        }
       >
         <span className="bell-icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
             <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
           </svg>
         </span>
+
         {unreadCount > 0 && (
-          <span className="bell-badge" aria-label={`${unreadCount} إشعارات جديدة`}>
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
+          <>
+            {/* Pulsing signal radar wave ("يبان زي الإشارة") */}
+            <span className="bell-signal-wave" aria-hidden="true"></span>
+            <span className="bell-badge" aria-label={`${unreadCount} إشعارات جديدة`}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          </>
         )}
       </button>
 
@@ -100,15 +161,17 @@ export function NotificationBell() {
           <div className="notif-dropdown-header">
             <div className="notif-header-title">
               <i className="fa-solid fa-bell"></i>
-              <strong>الإشعارات والتنبيهات</strong>
-              {unreadCount > 0 && <span className="notif-unread-count-pill">{unreadCount} جديد</span>}
+              <strong>مركز الإشعارات</strong>
+              {unreadCount > 0 && (
+                <span className="notif-unread-count-pill">{unreadCount} جديد</span>
+              )}
             </div>
-            {!isAdmin && unreadCount > 0 && (
+            {!isAdmin && !isGuest && unreadCount > 0 && (
               <button
                 type="button"
                 className="notif-mark-all-btn"
                 onClick={handleMarkAllRead}
-                title="تحديد جميع الردود كمقروءة"
+                title="تحديد جميع التنبيهات والردود كمقروءة"
               >
                 <i className="fa-solid fa-check-double"></i>
                 تحديد الكل كمقروء
@@ -117,47 +180,92 @@ export function NotificationBell() {
           </div>
 
           <div className="notif-dropdown-body">
+            {/* GUEST VIEW */}
+            {isGuest && (
+              <div className="notif-item-card is-unread" style={{ cursor: 'default' }}>
+                <div className="notif-item-top">
+                  <span className="notif-track-tag">
+                    <i className="fa-solid fa-rocket"></i> مرحباً بك
+                  </span>
+                  <span className="notif-time-tag">الآن</span>
+                </div>
+                <div className="notif-item-title-row">
+                  <div className="notif-avatar-icon">
+                    <i className="fa-solid fa-graduation-cap"></i>
+                  </div>
+                  <div className="notif-item-content">
+                    <strong className="notif-sender-title">ابدأ رحلتك التعليمية في خطوة</strong>
+                    <p className="notif-reply-excerpt">
+                      سجّل حسابك الآن لمتابعة دراستك، إرسال استفساراتك للمدربين، ومتابعة ردود الإدارة والتنبيهات لحظياً.
+                    </p>
+                  </div>
+                </div>
+                <div className="notif-item-footer" style={{ gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={() => { setIsOpen(false); window.location.hash = '#/auth/register'; }}
+                  >
+                    إنشاء حساب مجاناً
+                  </button>
+                  <button
+                    type="button"
+                    className="lnk"
+                    onClick={() => { setIsOpen(false); window.location.hash = '#/auth/login'; }}
+                  >
+                    تسجيل الدخول
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* STUDENT VIEW */}
-            {!isAdmin && (
+            {!isAdmin && !isGuest && (
               <>
-                {studentInquiries.length > 0 ? (
+                {studentItems.length > 0 ? (
                   <div className="notif-items-list">
-                    {studentInquiries.map((inq) => {
-                      const isUnread = !inq.readByStudent;
-                      const trackName = getCourse(inq.track)?.title || 'المسار التدريبي';
-                      const replySnippet = inq.reply.length > 75 ? `${inq.reply.slice(0, 75)}...` : inq.reply;
+                    {studentItems.map((item) => {
+                      const isUnread = !item.read;
+                      const trackName = item.trackId ? (getCourse(item.trackId)?.title || 'المسار التدريبي') : null;
+                      const textSnippet = item.text && item.text.length > 80 ? `${item.text.slice(0, 80)}...` : item.text;
+
+                      let iconClass = 'fa-solid fa-bell';
+                      if (item.type === 'inquiry_reply') iconClass = 'fa-solid fa-comments';
+                      else if (item.type === 'course_approved') iconClass = 'fa-solid fa-circle-check';
+                      else if (item.type === 'topup_approved') iconClass = 'fa-solid fa-coins';
+                      else if (item.type === 'welcome') iconClass = 'fa-solid fa-rocket';
 
                       return (
                         <div
-                          key={inq.id}
+                          key={item.id}
                           className={`notif-item-card ${isUnread ? 'is-unread' : 'is-read'}`}
-                          onClick={() => handleOpenDetail(inq.id)}
+                          onClick={() => handleStudentItemClick(item)}
                         >
                           <div className="notif-item-top">
                             <span className="notif-track-tag">
-                              <i className="fa-solid fa-graduation-cap"></i>
-                              {trackName}
+                              <i className={iconClass}></i>
+                              {trackName || (item.type === 'course_approved' ? 'تفعيل كورس' : item.type === 'topup_approved' ? 'شحن رصيد' : 'أكاديمية خطوة')}
                             </span>
                             <span className="notif-time-tag">
-                              {fmt(inq.repliedAt || inq.date)}
+                              {fmt(item.date)}
                             </span>
                           </div>
 
                           <div className="notif-item-title-row">
                             <div className="notif-avatar-icon">
-                              <i className="fa-solid fa-comments"></i>
+                              <i className={iconClass}></i>
                             </div>
                             <div className="notif-item-content">
                               <strong className="notif-sender-title">
-                                رد إدارة أكاديمية خطوة
+                                {item.title}
                                 {isUnread && <span className="notif-new-dot" title="غير مقروء"></span>}
                               </strong>
                               <p className="notif-reply-excerpt">
-                                «{replySnippet}»
+                                {textSnippet}
                               </p>
-                              {inq.message && (
+                              {item.userQuestion && (
                                 <span className="notif-original-q">
-                                  سؤالك كان: {inq.message.length > 40 ? `${inq.message.slice(0, 40)}...` : inq.message}
+                                  سؤالك: {item.userQuestion.length > 40 ? `${item.userQuestion.slice(0, 40)}...` : item.userQuestion}
                                 </span>
                               )}
                             </div>
@@ -169,10 +277,10 @@ export function NotificationBell() {
                               className="notif-detail-link"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleOpenDetail(inq.id);
+                                handleStudentItemClick(item);
                               }}
                             >
-                              <span>عرض التفاصيل والرد الكامل</span>
+                              <span>{item.type === 'course_approved' ? 'مشاهدة الكورس' : 'عرض التفاصيل'}</span>
                               <i className="fa-solid fa-arrow-left"></i>
                             </button>
                             {isUnread && (
@@ -181,9 +289,13 @@ export function NotificationBell() {
                                 className="notif-read-btn-chip"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  markSingleInquiryAsRead(inq.id);
+                                  if (item.kind === 'inquiry') {
+                                    if (markSingleInquiryAsRead) markSingleInquiryAsRead(item.originalId);
+                                  } else {
+                                    if (markSingleNotificationAsRead) markSingleNotificationAsRead(item.originalId);
+                                  }
                                 }}
-                                title="تحديد كمقروء دون الانتقال"
+                                title="تحديد كمقروء"
                               >
                                 تحديد كمقروء
                               </button>
@@ -198,7 +310,7 @@ export function NotificationBell() {
                     <div className="notif-empty-icon"><i className="fa-regular fa-bell"></i></div>
                     <div className="notif-empty-title">لا توجد إشعارات جديدة حالياً</div>
                     <p className="notif-empty-desc">
-                      عند إرسال أي استفسار والرد عليه من الإدارة، ستظهر لك إشعارات الردود ومقتطفاتها هنا فوراً.
+                      عند وجود رد على استفساراتك أو تفعيل اشتراكاتك ورصيدك، ستصلك كافة التنبيهات هنا فوراً.
                     </p>
                   </div>
                 )}
@@ -283,14 +395,16 @@ export function NotificationBell() {
                 setIsOpen(false);
                 if (isAdmin) {
                   window.location.hash = '#/admin';
-                  setAtab('leads');
-                } else {
+                  if (setAtab) setAtab('leads');
+                } else if (user) {
                   window.location.hash = '#/dashboard';
-                  setDtab('inquiries');
+                  if (setDtab) setDtab('notifications');
+                } else {
+                  window.location.hash = '#/auth/login';
                 }
               }}
             >
-              <span>{isAdmin ? 'فتح إدارة الاستفسارات' : 'عرض كل استفساراتي والردود'}</span>
+              <span>{isAdmin ? 'فتح إدارة الاستفسارات' : user ? 'عرض كل الإشعارات في الداشبورد' : 'تسجيل الدخول'}</span>
               <i className="fa-solid fa-arrow-left"></i>
             </button>
           </div>

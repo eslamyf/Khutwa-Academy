@@ -1,5 +1,6 @@
 import React from 'react';
 import { useKhutwa } from '../../hooks';
+import { NotificationBell } from '../common/NotificationBell';
 
 export function AppHeader() {
   const {
@@ -13,6 +14,8 @@ export function AppHeader() {
     toggleTheme,
     logoutUser,
     pendingSubCount,
+    pendingLeadsCount,
+    totalStudentUnreadCount,
     mobileMenuOpen,
     setMobileMenuOpen,
     getCourse
@@ -89,6 +92,9 @@ export function AppHeader() {
         {hash.startsWith('#/dashboard') && (
           <>
             <button className={dtab === 'courses' ? 'on' : ''} onClick={() => setDtab('courses')}>كورساتي</button>
+            <button className={dtab === 'notifications' ? 'on' : ''} onClick={() => setDtab('notifications')}>
+              الإشعارات {totalStudentUnreadCount > 0 ? `(${totalStudentUnreadCount})` : ''}
+            </button>
             <button className={dtab === 'inquiries' ? 'on' : ''} onClick={() => setDtab('inquiries')}>استفساراتي والدعم</button>
             <button className={dtab === 'profile' ? 'on' : ''} onClick={() => setDtab('profile')}>ملفي</button>
             <button className={dtab === 'wallet' ? 'on' : ''} onClick={() => setDtab('wallet')}>رصيدي</button>
@@ -103,7 +109,9 @@ export function AppHeader() {
             <button className={atab === 'courses' ? 'on' : ''} onClick={() => { setAtab('courses'); setAedit(null); }}>الكورسات</button>
             <button className={atab === 'students' ? 'on' : ''} onClick={() => { setAtab('students'); setAedit(null); }}>الطلاب</button>
             <button className={atab === 'tx' ? 'on' : ''} onClick={() => { setAtab('tx'); setAedit(null); }}>العمليات</button>
-            <button className={atab === 'leads' ? 'on' : ''} onClick={() => { setAtab('leads'); setAedit(null); }}>الاستفسارات</button>
+            <button className={atab === 'leads' ? 'on' : ''} onClick={() => { setAtab('leads'); setAedit(null); }}>
+              الاستفسارات {pendingLeadsCount > 0 ? `(${pendingLeadsCount})` : ''}
+            </button>
           </>
         )}
         {!hash.startsWith('#/dashboard') && !hash.startsWith('#/admin') && user && (
@@ -120,6 +128,7 @@ export function AppHeader() {
       </nav>
 
       <div className="end-actions">
+        <NotificationBell />
         <button className="tg" onClick={toggleTheme} aria-label="تبديل الوضع"></button>
         <div className="desktop-auth">
           {user ? (

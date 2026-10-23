@@ -14,13 +14,16 @@ export function AdminDashboard() {
     setAedit,
     setDialogContent,
     getCourse,
-    copyToClipboard
+    copyToClipboard,
+    addNotification
   } = useKhutwa();
 
   // Search queries & filters
   const [sq, setSq] = useState('');
   const [subFilter, setSubFilter] = useState('all');
   const [subSearch, setSubSearch] = useState('');
+  const [leadFilter, setLeadFilter] = useState('all'); // all | pending | replied
+  const [leadSearch, setLeadSearch] = useState('');
   const [replyingLeadId, setReplyingLeadId] = useState(null);
   const [replyText, setReplyText] = useState('');
 
@@ -373,7 +376,18 @@ export function AdminDashboard() {
                                   ];
                                   req.status = 'approved';
                                   req.reviewedAt = Date.now();
-                                  saveDb({ ...db, tx: nextTx });
+                                  const newNotif = {
+                                    id: gid('notif'),
+                                    userId: req.userId,
+                                    type: 'topup_approved',
+                                    title: 'تم شحن رصيد محفظتك بنجاح!',
+                                    message: `تم تأكيد تحويلك وشحن مبلغ ${topupVal} ج.م في رصيدك عبر ${req.method === 'vodafone' ? 'فودافون كاش' : 'إنستاباي'}.`,
+                                    date: Date.now(),
+                                    read: false,
+                                    link: '#/dashboard',
+                                    dtab: 'wallet'
+                                  };
+                                  saveDb({ ...db, tx: nextTx, notifications: [newNotif, ...(db.notifications || [])] });
                                   showToast(`تمت الموافقة وشحن ${topupVal} ج.م في محفظة الطالب ${req.userName} بنجاح!`);
                                   return;
                                 }
@@ -403,7 +417,20 @@ export function AdminDashboard() {
                                 req.status = 'approved';
                                 req.reviewedAt = Date.now();
 
-                                saveDb({ ...db, enr: nextEnr, tx: nextTx });
+                                const courseNotif = {
+                                  id: gid('notif'),
+                                  userId: req.userId,
+                                  type: 'course_approved',
+                                  title: `تم تفعيل اشتراكك في ${req.courseTitle}! 🎉`,
+                                  message: `مبروك! تم تأكيد إيصال التحويل وتفعيل المسار التدريبي بحسابك. يمكنك الآن بدء المشاهدة والتطبيق.`,
+                                  date: Date.now(),
+                                  read: false,
+                                  link: `#/watch/${req.courseId}/${targetCourse.lessons[0]?.id || ''}`,
+                                  dtab: 'courses',
+                                  courseId: req.courseId
+                                };
+
+                                saveDb({ ...db, enr: nextEnr, tx: nextTx, notifications: [courseNotif, ...(db.notifications || [])] });
                                 showToast(`تمت الموافقة وتفعيل ${req.courseTitle} للطالب ${req.userName} بنجاح!`);
                               }}
                             >
@@ -419,8 +446,19 @@ export function AdminDashboard() {
                               onClick={() => {
                                 req.status = 'rejected';
                                 req.reviewedAt = Date.now();
-                                saveDb({ ...db });
-                                showToast('تم رفض الطلب');
+                                const rejectNotif = {
+                                  id: gid('notif'),
+                                  userId: req.userId,
+                                  type: 'sub_rejected',
+                                  title: 'تحديث بخصوص طلبك',
+                                  message: `نعتذر، لم نتمكن من التحقق من إيصال تحويل "${req.courseTitle || 'شحن الرصيد'}". يرجى التواصل مع الإدارة للتوضيح أو المحاولة مجدداً.`,
+                                  date: Date.now(),
+                                  read: false,
+                                  link: '#/dashboard',
+                                  dtab: 'inquiries'
+                                };
+                                saveDb({ ...db, notifications: [rejectNotif, ...(db.notifications || [])] });
+                                showToast('تم رفض الطلب وإشعار الطالب');
                               }}
                             >
                               <i className="fa-solid fa-xmark" style={{ marginInlineEnd: '4px' }}></i> رفض
@@ -1409,6 +1447,291 @@ export function AdminDashboard() {
           </div>
         </>
       )}
+
+      {/* ========================================================
+          TAB 6: LEADS & INQUIRIES (الاستفسارات والتواصل مع الطلاب)
+          ======================================================== */}
+      {atab === 'leads' && (() => {
+        const allLeads = db.leads || [];
+        const pendingLeads = allLeads.filter((l) => l.status === 'new' || !l.reply);
+        const repliedLeads = allLeads.filter((l) => l.reply);
+
+        const filteredLeads = allLeads.filter((lead) => {
+          if (leadFilter === 'pending' && (lead.reply && lead.status !== 'new')) return false;
+          if (leadFilter === 'replied' && !lead.reply) return false;
+          if (leadSearch.trim()) {
+            const q = leadSearch.toLowerCase();
+            const match =
+              (lead.name || '').toLowerCase().includes(q) ||
+              (lead.phone || '').toLowerCase().includes(q) ||
+              (lead.userEmail || lead.email || '').toLowerCase().includes(q) ||
+              (lead.message || '').toLowerCase().includes(q) ||
+              (lead.reply || '').toLowerCase().includes(q);
+            if (!match) return false;
+          }
+          return true;
+        });
+
+        const handleSendReply = (lead) => {
+          if (!replyText.trim()) {
+            showToast('يرجى كتابة نص الرد أولاً');
+            return;
+          }
+
+          const updatedLeads = (db.leads || []).map((l) => {
+            if (l.id === lead.id) {
+              return {
+                ...l,
+                reply: replyText.trim(),
+                status: 'replied',
+                repliedAt: Date.now(),
+                readByStudent: false
+              };
+            }
+            return l;
+          });
+
+          const targetCourse = getCourse(lead.track);
+          const trackTitle = targetCourse ? targetCourse.title : 'المسار التدريبي';
+
+          let nextNotifs = db.notifications || [];
+          if (lead.userId) {
+            const replyNotif = {
+              id: gid('notif'),
+              userId: lead.userId,
+              type: 'inquiry_reply',
+              title: `رد جديد من إدارة الأكاديمية على استفسارك`,
+              message: `ردت إدارة خطوة على سؤالك بخصوص ${trackTitle}: "${replyText.trim().slice(0, 85)}..."`,
+              date: Date.now(),
+              read: false,
+              link: '#/dashboard',
+              dtab: 'inquiries',
+              leadId: lead.id
+            };
+            nextNotifs = [replyNotif, ...nextNotifs];
+          }
+
+          saveDb({ ...db, leads: updatedLeads, notifications: nextNotifs });
+          setReplyingLeadId(null);
+          setReplyText('');
+          showToast(`تم إرسال الرد وإشعار الطالب ${lead.name} بنجاح!`);
+        };
+
+        return (
+          <>
+            <div className="admin-header-card">
+              <div>
+                <div className="admin-badge">
+                  <span className="admin-badge-dot" />
+                  خدمة الطلاب والتواصل · مركز الردود
+                </div>
+                <h1 className="admin-title">استفسارات الطلاب والرسائل</h1>
+                <p className="admin-subtitle">
+                  الرد المباشر على أسئلة الطلاب، حيث يصل الرد فوراً إلى حساب الطالب وجرس الإشعارات.
+                </p>
+              </div>
+              <div className="admin-stats-summary">
+                <div className="admin-stat-chip">
+                  <b>{allLeads.length}</b>
+                  <span>إجمالي الاستفسارات</span>
+                </div>
+                <div className="admin-stat-chip" style={{ borderColor: 'rgba(245, 158, 11, 0.4)' }}>
+                  <b style={{ color: '#f59e0b' }}>{pendingLeads.length}</b>
+                  <span>في انتظار الرد</span>
+                </div>
+                <div className="admin-stat-chip" style={{ borderColor: 'rgba(34, 197, 94, 0.4)' }}>
+                  <b style={{ color: '#22c55e' }}>{repliedLeads.length}</b>
+                  <span>تم الرد عليها</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-card">
+              <div className="admin-card-header">
+                <div className="admin-filter-pills">
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${leadFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setLeadFilter('all')}
+                  >
+                    الكل ({allLeads.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${leadFilter === 'pending' ? 'active' : ''}`}
+                    onClick={() => setLeadFilter('pending')}
+                  >
+                    في انتظار الرد ({pendingLeads.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-pill-btn ${leadFilter === 'replied' ? 'active' : ''}`}
+                    onClick={() => setLeadFilter('replied')}
+                  >
+                    تم الرد ({repliedLeads.length})
+                  </button>
+                </div>
+
+                <div className="admin-search-box">
+                  <input
+                    type="text"
+                    placeholder="ابحث بالاسم، الرقم، أو السؤال..."
+                    value={leadSearch}
+                    onChange={(e) => setLeadSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ padding: '20px' }}>
+                {filteredLeads.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {filteredLeads.map((lead) => {
+                      const isPending = lead.status === 'new' || !lead.reply;
+                      const course = getCourse(lead.track);
+                      const isReplying = replyingLeadId === lead.id || (!lead.reply && replyingLeadId === null);
+
+                      return (
+                        <div
+                          key={lead.id}
+                          className="admin-card"
+                          style={{
+                            borderInlineStart: `4px solid ${isPending ? '#f59e0b' : '#22c55e'}`,
+                            padding: '20px',
+                            background: isPending ? 'rgba(245, 158, 11, 0.03)' : 'inherit'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <strong style={{ fontSize: '1.15rem' }}>{lead.name || 'طالب جديد'}</strong>
+                                <span className={`admin-status-pill ${isPending ? 'admin-status-pending' : 'admin-status-approved'}`}>
+                                  {isPending ? 'في انتظار الرد' : 'تم الرد'}
+                                </span>
+                                {course && (
+                                  <span style={{ fontSize: '0.85rem', color: 'var(--cyan)', background: 'rgba(43, 185, 211, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>
+                                    <i className="fa-solid fa-graduation-cap" style={{ marginInlineEnd: '4px' }}></i> {course.title}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div style={{ display: 'flex', gap: '16px', fontSize: '0.86rem', opacity: 0.8, marginTop: '6px', flexWrap: 'wrap' }}>
+                                <span><i className="fa-regular fa-clock" style={{ marginInlineEnd: '4px' }}></i> {fmt(lead.date)}</span>
+                                {lead.phone && (
+                                  <span>
+                                    <i className="fa-solid fa-phone" style={{ marginInlineEnd: '4px' }}></i> {lead.phone}
+                                    <a
+                                      href={`https://wa.me/${String(lead.phone).replace(/\D/g, '').replace(/^0/, '20')}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ marginInlineStart: '6px', color: '#22c55e', fontWeight: 700 }}
+                                    >
+                                      واتساب
+                                    </a>
+                                  </span>
+                                )}
+                                {(lead.userEmail || lead.email) && (
+                                  <span><i className="fa-regular fa-envelope" style={{ marginInlineEnd: '4px' }}></i> {lead.userEmail || lead.email}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Student message */}
+                          <div style={{ background: 'var(--bg)', padding: '14px 16px', borderRadius: '12px', marginBottom: '14px', border: '1px solid var(--line)' }}>
+                            <span style={{ fontSize: '0.8rem', opacity: 0.7, display: 'block', marginBottom: '4px' }}>
+                              سؤال / رسالة الطالب:
+                            </span>
+                            <p style={{ margin: 0, fontSize: '0.98rem', lineHeight: 1.6, fontWeight: 600 }}>
+                              «{lead.message || 'طلب استفسار عن مسار تدريبي'}»
+                            </p>
+                          </div>
+
+                          {/* Existing reply if available */}
+                          {lead.reply && replyingLeadId !== lead.id && (
+                            <div style={{ background: 'rgba(34, 197, 94, 0.08)', border: '1px solid rgba(34, 197, 94, 0.25)', padding: '14px 16px', borderRadius: '12px', marginBottom: '12px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <strong style={{ color: '#22c55e', fontSize: '0.92rem' }}>
+                                  <i className="fa-solid fa-check-double" style={{ marginInlineEnd: '6px' }}></i>
+                                  رد الأكاديمية:
+                                </strong>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  {lead.repliedAt && <small style={{ opacity: 0.75 }}>({fmt(lead.repliedAt)})</small>}
+                                  <button
+                                    type="button"
+                                    className="lnk"
+                                    style={{ fontSize: '0.85rem' }}
+                                    onClick={() => {
+                                      setReplyingLeadId(lead.id);
+                                      setReplyText(lead.reply);
+                                    }}
+                                  >
+                                    تعديل الرد
+                                  </button>
+                                </div>
+                              </div>
+                              <p style={{ margin: 0, fontSize: '0.96rem', lineHeight: 1.6 }}>{lead.reply}</p>
+                            </div>
+                          )}
+
+                          {/* Reply Form */}
+                          {(!lead.reply || replyingLeadId === lead.id) && (
+                            <div style={{ marginTop: '12px' }}>
+                              <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.88rem', fontWeight: 700 }}>
+                                {lead.reply ? 'تعديل الرد وإشعار الطالب:' : 'اكتب رد الأكاديمية لإشعار الطالب:'}
+                              </label>
+                              <textarea
+                                className="fi"
+                                rows={3}
+                                style={{ width: '100%', resize: 'vertical', minHeight: '80px', marginBottom: '10px' }}
+                                placeholder="اكتب الرد التوضيحي أو التوجيه للطالب هنا..."
+                                value={replyingLeadId === lead.id ? replyText : (replyingLeadId === null ? replyText : '')}
+                                onChange={(e) => {
+                                  setReplyingLeadId(lead.id);
+                                  setReplyText(e.target.value);
+                                }}
+                              />
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm"
+                                  onClick={() => handleSendReply(lead)}
+                                >
+                                  <i className="fa-solid fa-paper-plane" style={{ marginInlineEnd: '6px' }}></i>
+                                  إرسال الرد وإشعار الطالب
+                                </button>
+                                {replyingLeadId === lead.id && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline"
+                                    onClick={() => {
+                                      setReplyingLeadId(null);
+                                      setReplyText('');
+                                    }}
+                                  >
+                                    إلغاء
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="admin-empty-state">
+                    <div className="admin-empty-icon"><i className="fa-solid fa-comments"></i></div>
+                    <div className="admin-empty-title">لا توجد استفسارات مطابقة للبحث أو التصفية</div>
+                    <div className="admin-empty-desc">
+                      عندما يقوم الزوار والطلاب بإرسال أسئلة واستفسارات، ستظهر فوراً هنا للرد عليها ومتابعتها.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
