@@ -31,8 +31,12 @@ export function NotificationBell() {
     };
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, [isOpen]);
 
   const isAdmin = user && user.role === 'admin';
@@ -157,27 +161,44 @@ export function NotificationBell() {
 
       {/* Modern Notifications Dropdown Panel */}
       {isOpen && (
-        <div className="notif-dropdown-panel" role="dialog" aria-label="قائمة التنبيهات">
-          <div className="notif-dropdown-header">
-            <div className="notif-header-title">
-              <i className="fa-solid fa-bell"></i>
-              <strong>مركز الإشعارات</strong>
-              {unreadCount > 0 && (
-                <span className="notif-unread-count-pill">{unreadCount} جديد</span>
-              )}
+        <>
+          <div
+            className="notif-backdrop"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="notif-dropdown-panel" role="dialog" aria-label="قائمة التنبيهات">
+            <div className="notif-dropdown-header">
+              <div className="notif-header-title">
+                <i className="fa-solid fa-bell"></i>
+                <strong>مركز الإشعارات</strong>
+                {unreadCount > 0 && (
+                  <span className="notif-unread-count-pill">{unreadCount} جديد</span>
+                )}
+              </div>
+              <div className="notif-header-actions">
+                {!isAdmin && !isGuest && unreadCount > 0 && (
+                  <button
+                    type="button"
+                    className="notif-mark-all-btn"
+                    onClick={handleMarkAllRead}
+                    title="تحديد جميع التنبيهات والردود كمقروءة"
+                  >
+                    <i className="fa-solid fa-check-double"></i>
+                    تحديد الكل كمقروء
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="notif-close-btn"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="إغلاق"
+                  title="إغلاق"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
             </div>
-            {!isAdmin && !isGuest && unreadCount > 0 && (
-              <button
-                type="button"
-                className="notif-mark-all-btn"
-                onClick={handleMarkAllRead}
-                title="تحديد جميع التنبيهات والردود كمقروءة"
-              >
-                <i className="fa-solid fa-check-double"></i>
-                تحديد الكل كمقروء
-              </button>
-            )}
-          </div>
 
           <div className="notif-dropdown-body">
             {/* STUDENT & GUEST VIEW */}
@@ -372,6 +393,7 @@ export function NotificationBell() {
             </button>
           </div>
         </div>
+      </>
       )}
     </div>
   );

@@ -4546,6 +4546,22 @@ dialog h2,
   }
 }
 
+/* Mobile backdrop overlay for notification panel */
+.notif-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 9998;
+  animation: notifFadeIn 0.2s ease;
+}
+
+@keyframes notifFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Dropdown Panel */
 /* Dropdown Panel (Solid & Completely Opaque) */
 .notif-dropdown-panel {
@@ -4639,6 +4655,43 @@ dialog h2,
 
 .notif-mark-all-btn:hover {
   background: rgba(43, 185, 211, 0.12);
+}
+
+.notif-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notif-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-size: 1.1rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.notif-close-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ef4444;
+}
+
+[data-theme="light"] .notif-close-btn {
+  color: #1b2050;
+}
+
+[data-theme="light"] .notif-close-btn:hover {
+  background: rgba(27, 32, 80, 0.08);
 }
 
 .notif-dropdown-body {
@@ -4978,6 +5031,115 @@ dialog h2,
     transform: scale(1.3);
     opacity: 1;
     box-shadow: 0 0 12px #ef4444;
+  }
+}
+
+/* Responsive Dropdown Panel on Mobile */
+@media (max-width: 640px) {
+  .notif-dropdown-panel {
+    position: fixed !important;
+    top: 66px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(85vh - 70px) !important;
+    margin: 0 auto !important;
+    border-radius: 18px !important;
+  }
+}
+
+/* ========================================================
+   Mobile User / Auth Button in Navbar
+   ======================================================== */
+.mobile-user-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s, box-shadow 0.25s;
+  color: var(--fg);
+  padding: 0;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.mobile-user-btn:hover {
+  transform: scale(1.08);
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px rgba(43, 185, 211, 0.4);
+}
+
+/* Guest mode: "شكل الراجل" */
+.mobile-user-btn.guest i {
+  font-size: 1.05rem;
+  color: var(--fg);
+  transition: color 0.2s ease;
+}
+
+.mobile-user-btn.guest:hover i {
+  color: var(--cyan);
+}
+
+[data-theme="light"] .mobile-user-btn.guest i {
+  color: #1b2050;
+}
+
+[data-theme="light"] .mobile-user-btn.guest:hover i {
+  color: var(--cyt);
+}
+
+/* Logged-in mode: Initials badge ("اول حرف من اسمه واول حرف من اسم ابوه") */
+.mobile-user-btn.logged-in {
+  border-color: var(--cyan);
+  background: linear-gradient(135deg, rgba(43, 185, 211, 0.22), rgba(40, 47, 133, 0.4));
+  box-shadow: 0 0 12px rgba(43, 185, 211, 0.3);
+}
+
+.mobile-user-btn.logged-in .user-initials {
+  font-family: 'Cairo', 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+  color: var(--cyan);
+  line-height: 1;
+}
+
+[data-theme="light"] .mobile-user-btn.logged-in {
+  background: linear-gradient(135deg, rgba(43, 185, 211, 0.18), rgba(23, 146, 172, 0.25));
+  border-color: var(--cyt);
+}
+
+[data-theme="light"] .mobile-user-btn.logged-in .user-initials {
+  color: #1792ac;
+}
+
+@media (max-width: 800px) {
+  .mobile-user-btn {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+  }
+
+  .hr,
+  .end-actions {
+    gap: 8px !important;
+  }
+
+  .bell-btn,
+  header .tg,
+  .tb .tg,
+  .hamb-btn {
+    width: 38px !important;
+    height: 38px !important;
   }
 }
 

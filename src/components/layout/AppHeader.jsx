@@ -1,6 +1,7 @@
 import React from 'react';
 import { useKhutwa } from '../../hooks';
 import { NotificationBell } from '../common/NotificationBell';
+import { getUserInitials } from '../../utils';
 
 export function AppHeader() {
   const {
@@ -130,6 +131,34 @@ export function AppHeader() {
       <div className="end-actions">
         <NotificationBell />
         <button className="tg" onClick={toggleTheme} aria-label="تبديل الوضع"></button>
+
+        {/* Mobile User Auth Button */}
+        {user ? (
+          <button
+            type="button"
+            className="mobile-user-btn logged-in"
+            onClick={() => {
+              window.location.hash = user.role === 'admin' ? '#/admin' : '#/dashboard';
+            }}
+            aria-label={`حساب ${user.name}`}
+            title={`حسابك: ${user.name} (فتح لوحة التحكم)`}
+          >
+            <span className="user-initials">{getUserInitials(user.name)}</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="mobile-user-btn guest"
+            onClick={() => {
+              window.location.hash = '#/auth/login';
+            }}
+            aria-label="تسجيل الدخول"
+            title="تسجيل الدخول"
+          >
+            <i className="fa-solid fa-user"></i>
+          </button>
+        )}
+
         <div className="desktop-auth">
           {user ? (
             <>
