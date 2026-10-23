@@ -51,10 +51,10 @@ export function initialSeed() {
         lessons: L([
           ['إزاي بيشتغل الويب', 12, 'https://www.youtube.com/watch?v=edBBbWSdfAg'],
           ['HTML من الصفر', 60, 'https://www.youtube.com/watch?v=6QAELgirvjs'],
-          ['CSS والتخطيط', 30, 'https://www.youtube.com/watch?v=R6Ygwllc_a8'],
+          ['CSS والتخطيط', 30, 'https://www.youtube.com/watch?v=X1ulCwyhCVM'],
           ['JavaScript أساسيات', 35, 'https://www.youtube.com/watch?v=GM6dQBmc-Xg'],
           ['مشروع الأسبوع: صفحة شخصية', 28, 'https://www.youtube.com/watch?v=UB1O30fR-EE'],
-          ['التجاوب مع الموبايل', 22, 'https://www.youtube.com/watch?v=R6Ygwllc_a8'],
+          ['التجاوب مع الموبايل', 22, 'https://www.youtube.com/watch?v=1Rs2ND1ryYc'],
           ['رفع المشروع أونلاين', 15, 'https://www.youtube.com/watch?v=LbChVEs_mLs']
         ])
       },

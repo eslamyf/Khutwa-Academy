@@ -24,9 +24,13 @@ export function KhutwaProvider({ children }) {
             if (!ex) return sc;
             const updatedLessons = sc.lessons.map((sl, idx) => {
               const el = ex.lessons && ex.lessons[idx];
+              let url = (el && el.url) ? el.url : sl.url;
+              if (url && (url.includes('R6Ygwllc_a8') || !url.trim())) {
+                url = sl.url;
+              }
               return {
                 ...sl,
-                url: (el && el.url) ? el.url : sl.url
+                url
               };
             });
             const price = (ex.price === 1500 || ex.price === 1200 || !ex.price) ? sc.price : ex.price;
@@ -54,6 +58,7 @@ export function KhutwaProvider({ children }) {
             return l;
           });
         }
+        LS.set(DB_KEY, JSON.stringify(parsed));
         return parsed;
       }
     } catch {
