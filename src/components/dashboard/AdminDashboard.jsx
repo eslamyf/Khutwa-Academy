@@ -147,7 +147,7 @@ export function AdminDashboard() {
               >
                 <label>
                   رقم فودافون كاش / المحفظة الذكية
-                  <input className="fi" name="vodafone" defaultValue={db.settings.vodafone || '01012345678'} required />
+                  <input className="fi" name="vodafone" defaultValue={db.settings.vodafone || '01028103634'} required />
                 </label>
 
                 <label>

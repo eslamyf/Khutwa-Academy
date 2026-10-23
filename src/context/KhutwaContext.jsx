@@ -13,7 +13,8 @@ export function KhutwaProvider({ children }) {
         const parsed = JSON.parse(raw);
         if (!parsed.subRequests) parsed.subRequests = [];
         if (!parsed.settings) parsed.settings = {};
-        if (!parsed.settings.vodafone) parsed.settings.vodafone = '01012345678';
+        if (!parsed.settings.vodafone || parsed.settings.vodafone === '01012345678') parsed.settings.vodafone = '01028103634';
+        if (!parsed.settings.whatsapp || parsed.settings.whatsapp === '201000000000' || parsed.settings.whatsapp === '201012345678') parsed.settings.whatsapp = '201028103634';
         if (!parsed.settings.instapay) parsed.settings.instapay = 'khutwa@instapay';
         if (!parsed.courses || !parsed.courses.length) {
           parsed.courses = initialSeed().courses;

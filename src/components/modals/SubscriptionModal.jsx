@@ -52,13 +52,13 @@ export function SubscriptionModal({ dialogContent }) {
             </span>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <strong style={{ fontSize: '1.3rem', letterSpacing: '1px', color: 'var(--cyt)' }}>
-                {db.settings.vodafone || '01012345678'}
+                {db.settings.vodafone || '01028103634'}
               </strong>
               <button
                 type="button"
                 className="btn"
                 style={{ padding: '6px 16px', fontSize: '.9rem' }}
-                onClick={() => copyToClipboard(db.settings.vodafone || '01012345678', 'رقم فودافون كاش')}
+                onClick={() => copyToClipboard(db.settings.vodafone || '01028103634', 'رقم فودافون كاش')}
               >
                 نسخ الرقم
               </button>

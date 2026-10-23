@@ -38,9 +38,9 @@ export function NotificationBell() {
   const isAdmin = user && user.role === 'admin';
   const isGuest = !user;
 
-  // Unread badge count calculation
+  // Unread badge count calculation (guests have 0 unread)
   const unreadCount = isGuest
-    ? 1
+    ? 0
     : isAdmin
       ? (pendingLeadsCount + pendingSubCount)
       : (totalStudentUnreadCount ?? (unreadRepliesCount + unreadNotifsCount));
@@ -180,47 +180,8 @@ export function NotificationBell() {
           </div>
 
           <div className="notif-dropdown-body">
-            {/* GUEST VIEW */}
-            {isGuest && (
-              <div className="notif-item-card is-unread" style={{ cursor: 'default' }}>
-                <div className="notif-item-top">
-                  <span className="notif-track-tag">
-                    <i className="fa-solid fa-rocket"></i> مرحباً بك
-                  </span>
-                  <span className="notif-time-tag">الآن</span>
-                </div>
-                <div className="notif-item-title-row">
-                  <div className="notif-avatar-icon">
-                    <i className="fa-solid fa-graduation-cap"></i>
-                  </div>
-                  <div className="notif-item-content">
-                    <strong className="notif-sender-title">ابدأ رحلتك التعليمية في خطوة</strong>
-                    <p className="notif-reply-excerpt">
-                      سجّل حسابك الآن لمتابعة دراستك، إرسال استفساراتك للمدربين، ومتابعة ردود الإدارة والتنبيهات لحظياً.
-                    </p>
-                  </div>
-                </div>
-                <div className="notif-item-footer" style={{ gap: '8px' }}>
-                  <button
-                    type="button"
-                    className="btn btn-sm"
-                    onClick={() => { setIsOpen(false); window.location.hash = '#/auth/register'; }}
-                  >
-                    إنشاء حساب مجاناً
-                  </button>
-                  <button
-                    type="button"
-                    className="lnk"
-                    onClick={() => { setIsOpen(false); window.location.hash = '#/auth/login'; }}
-                  >
-                    تسجيل الدخول
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STUDENT VIEW */}
-            {!isAdmin && !isGuest && (
+            {/* STUDENT & GUEST VIEW */}
+            {!isAdmin && (
               <>
                 {studentItems.length > 0 ? (
                   <div className="notif-items-list">
@@ -308,9 +269,11 @@ export function NotificationBell() {
                 ) : (
                   <div className="notif-empty-state">
                     <div className="notif-empty-icon"><i className="fa-regular fa-bell"></i></div>
-                    <div className="notif-empty-title">لا توجد إشعارات جديدة حالياً</div>
+                    <div className="notif-empty-title">لا توجد إشعارات جديدة</div>
                     <p className="notif-empty-desc">
-                      عند وجود رد على استفساراتك أو تفعيل اشتراكاتك ورصيدك، ستصلك كافة التنبيهات هنا فوراً.
+                      {isGuest
+                        ? 'عند تسجيل الدخول ومتابعة دراستك، ستصلك كافة التنبيهات والردود هنا فوراً.'
+                        : 'عند وجود رد على استفساراتك أو تفعيل اشتراكاتك ورصيدك، ستصلك كافة التنبيهات هنا فوراً.'}
                     </p>
                   </div>
                 )}

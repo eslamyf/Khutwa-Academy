@@ -13,8 +13,8 @@ export function initialSeed() {
   return {
     v: 3,
     settings: {
-      whatsapp: '201000000000',
-      vodafone: '01012345678',
+      whatsapp: '201028103634',
+      vodafone: '01028103634',
       instapay: 'khutwa@instapay'
     },
     users: [

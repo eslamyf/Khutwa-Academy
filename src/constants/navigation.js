@@ -10,7 +10,7 @@ export const SOCIAL_LINKS = [
   { id: 'instagram', label: 'Instagram', href: 'https://instagram.com', icon: 'fa-brands fa-instagram' },
   { id: 'linkedin', label: 'LinkedIn', href: 'https://linkedin.com', icon: 'fa-brands fa-linkedin-in' },
   { id: 'youtube', label: 'YouTube', href: 'https://youtube.com', icon: 'fa-brands fa-youtube' },
-  { id: 'whatsapp', label: 'WhatsApp', href: 'https://wa.me/201012345678', icon: 'fa-brands fa-whatsapp' }
+  { id: 'whatsapp', label: 'WhatsApp', href: 'https://wa.me/201028103634', icon: 'fa-brands fa-whatsapp' }
 ];
 
 export const STATS_DATA = [

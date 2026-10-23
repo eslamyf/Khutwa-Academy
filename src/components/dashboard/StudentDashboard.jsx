@@ -306,11 +306,11 @@ export function StudentDashboard() {
                 </div>
               </div>
               <div className="method-num-row">
-                <span className="method-val">{db.settings?.vodafone || '01012345678'}</span>
+                <span className="method-val">{db.settings?.vodafone || '01028103634'}</span>
                 <button
                   type="button"
                   className="btn-copy-mini"
-                  onClick={() => copyToClipboard(db.settings?.vodafone || '01012345678', 'رقم فودافون كاش')}
+                  onClick={() => copyToClipboard(db.settings?.vodafone || '01028103634', 'رقم فودافون كاش')}
                 >
                   <i className="fa-regular fa-copy"></i>
                   <span>نسخ</span>

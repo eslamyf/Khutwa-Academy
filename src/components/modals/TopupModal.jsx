@@ -165,12 +165,12 @@ export function TopupModal({ dialogContent }) {
             <div className="transfer-data-row">
               <div>
                 <span className="transfer-hint">رقم محفظة التحويل (فودافون / أورنج / اتصالات / وي كاش):</span>
-                <strong className="transfer-number">{db.settings?.vodafone || '01012345678'}</strong>
+                <strong className="transfer-number">{db.settings?.vodafone || '01028103634'}</strong>
               </div>
               <button
                 type="button"
                 className="btn btn-sm"
-                onClick={() => copyToClipboard(db.settings?.vodafone || '01012345678', 'رقم فودافون كاش')}
+                onClick={() => copyToClipboard(db.settings?.vodafone || '01028103634', 'رقم فودافون كاش')}
               >
                 <i className="fa-regular fa-copy"></i>
                 نسخ الرقم
