@@ -287,7 +287,7 @@ export function AdminDashboard() {
                       <td>
                         {req.type === 'topup' ? (
                           <span style={{ fontWeight: 800, color: 'var(--cyt)' }}>
-                            💰 {req.courseTitle || 'شحن رصيد محفظة'}
+                            <i className="fa-solid fa-coins" style={{ marginInlineEnd: '6px' }}></i> {req.courseTitle || 'شحن رصيد محفظة'}
                           </span>
                         ) : (
                           <span style={{ fontWeight: 700, color: 'var(--fg)' }}>{req.courseTitle}</span>
@@ -298,7 +298,11 @@ export function AdminDashboard() {
                       </td>
                       <td>
                         <span className={`admin-method-badge ${req.method === 'vodafone' ? 'admin-method-vf' : 'admin-method-insta'}`}>
-                          {req.method === 'vodafone' ? '📱 فودافون كاش' : '⚡ إنستاباي'}
+                          {req.method === 'vodafone' ? (
+                            <><i className="fa-solid fa-mobile-screen" style={{ marginInlineEnd: '4px' }}></i> فودافون كاش</>
+                          ) : (
+                            <><i className="fa-solid fa-bolt" style={{ marginInlineEnd: '4px' }}></i> إنستاباي</>
+                          )}
                         </span>
                       </td>
                       <td>
@@ -308,7 +312,7 @@ export function AdminDashboard() {
                           onClick={() => copyToClipboard(req.sender, 'الرقم المحول منه')}
                         >
                           <span>{req.sender}</span>
-                          <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>📋</span>
+                          <span style={{ fontSize: '0.85rem', opacity: 0.7 }}><i className="fa-regular fa-copy"></i></span>
                         </div>
                       </td>
                       <td>
@@ -319,7 +323,7 @@ export function AdminDashboard() {
                             onClick={() => setDialogContent({ type: 'view_receipt', img: req.receiptImg, req })}
                           >
                             <img src={req.receiptImg} alt="الإيصال" />
-                            <div className="admin-receipt-overlay">🔍 تكبير</div>
+                            <div className="admin-receipt-overlay"><i className="fa-solid fa-magnifying-glass-plus" style={{ marginInlineEnd: '4px' }}></i> تكبير</div>
                           </div>
                         ) : (
                           <span className="hint">بدون صورة</span>
@@ -403,7 +407,11 @@ export function AdminDashboard() {
                                 showToast(`تمت الموافقة وتفعيل ${req.courseTitle} للطالب ${req.userName} بنجاح!`);
                               }}
                             >
-                              {req.type === 'topup' ? '✓ شحن الرصيد' : '✓ تفعيل الكورس'}
+                              {req.type === 'topup' ? (
+                                <><i className="fa-solid fa-check" style={{ marginInlineEnd: '4px' }}></i> شحن الرصيد</>
+                              ) : (
+                                <><i className="fa-solid fa-check" style={{ marginInlineEnd: '4px' }}></i> تفعيل الكورس</>
+                              )}
                             </button>
                             <button
                               type="button"
@@ -415,7 +423,7 @@ export function AdminDashboard() {
                                 showToast('تم رفض الطلب');
                               }}
                             >
-                              ✕ رفض
+                              <i className="fa-solid fa-xmark" style={{ marginInlineEnd: '4px' }}></i> رفض
                             </button>
                           </div>
                         ) : (
@@ -437,7 +445,7 @@ export function AdminDashboard() {
                     <tr>
                       <td colSpan={9}>
                         <div className="admin-empty-state">
-                          <div className="admin-empty-icon">📭</div>
+                          <div className="admin-empty-icon"><i className="fa-regular fa-folder-open"></i></div>
                           <div className="admin-empty-title">لا توجد طلبات اشتراك مطابقة</div>
                           <div className="admin-empty-desc">
                             {subSearch ? 'جرب البحث بكلمات أخرى أو اختر تبويبًا مختلفًا.' : 'ستظهر هنا طلبات اشتراك الطلاب فور إرسالها مع إيصالات التحويل.'}
@@ -557,7 +565,7 @@ export function AdminDashboard() {
         if (!c) { setAedit(null); return null; }
         return (
           <>
-            <p><button className="lnk" onClick={() => setAedit(null)}>← العودة لقائمة الكورسات</button></p>
+            <p><button className="lnk" onClick={() => setAedit(null)}><i className="fa-solid fa-arrow-right" style={{ marginInlineEnd: '6px' }}></i> العودة لقائمة الكورسات</button></p>
             <div className="admin-header-card">
               <div>
                 <div className="admin-badge">
@@ -812,7 +820,7 @@ export function AdminDashboard() {
                       onClick={() => setStuSearch('')}
                       style={{ background: 'none', border: 0, color: 'var(--fg)', cursor: 'pointer', padding: '0 4px' }}
                     >
-                      ✕
+                      <i className="fa-solid fa-xmark"></i>
                     </button>
                   )}
                 </div>
@@ -937,7 +945,7 @@ export function AdminDashboard() {
                                 <span className="admin-user-sub">{u.email}</span>
                                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '4px' }}>
                                   <span className="admin-pass-chip" title="كلمة المرور الحالية المسجلة للنظام">
-                                    🔑 {u.pass || '123456'}
+                                    <i className="fa-solid fa-key" style={{ marginInlineEnd: '4px', fontSize: '11px' }}></i> {u.pass || '123456'}
                                   </span>
                                   <small className="hint">{fmt(u.created || Date.now())}</small>
                                 </div>
@@ -1026,7 +1034,7 @@ export function AdminDashboard() {
                                 }}
                                 title="إعادة تعيين كلمة المرور فورياً"
                               >
-                                🔑 كلمة المرور
+                                <i className="fa-solid fa-key" style={{ marginInlineEnd: '4px' }}></i> كلمة المرور
                               </button>
                               <button
                                 type="button"
@@ -1036,7 +1044,7 @@ export function AdminDashboard() {
                                   setDialogContent({ type: 'student', student: u });
                                 }}
                               >
-                                ⚙️ إدارة شاملة
+                                <i className="fa-solid fa-gear" style={{ marginInlineEnd: '4px' }}></i> إدارة شاملة
                               </button>
                             </div>
                           </td>
@@ -1048,7 +1056,7 @@ export function AdminDashboard() {
                       <tr>
                         <td colSpan={7}>
                           <div className="admin-empty-state">
-                            <div className="admin-empty-icon">👥</div>
+                            <div className="admin-empty-icon"><i className="fa-solid fa-users"></i></div>
                             <div className="admin-empty-title">لا توجد نتائج مطابقة لبحثك</div>
                             <div className="admin-empty-desc">
                               جرب تغيير كلمات البحث أو إعادة ضبط خيارات الفلاتر المعروضة بالأعلى.
@@ -1079,10 +1087,10 @@ export function AdminDashboard() {
             {resetPassStu && (
               <div className="modal-overlay" onClick={() => setResetPassStu(null)}>
                 <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px' }}>
-                  <button className="x" onClick={() => setResetPassStu(null)}>✕</button>
+                  <button className="x" onClick={() => setResetPassStu(null)}><i className="fa-solid fa-xmark"></i></button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                     <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(43, 185, 211, 0.15)', color: 'var(--cyan)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-                      🔑
+                      <i className="fa-solid fa-key"></i>
                     </div>
                     <div>
                       <h3 style={{ margin: 0, fontSize: '1.2rem' }}>إعادة تعيين كلمة المرور</h3>
@@ -1141,7 +1149,7 @@ export function AdminDashboard() {
 
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                        ✓ حفظ وتطبيق كلمة المرور
+                        <i className="fa-solid fa-check" style={{ marginInlineEnd: '6px' }}></i> حفظ وتطبيق كلمة المرور
                       </button>
                       <button
                         type="button"
@@ -1209,7 +1217,7 @@ export function AdminDashboard() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            💬 {l.phone}
+                            <i className="fa-brands fa-whatsapp"></i> {l.phone}
                           </a>
                         </div>
                       </td>
@@ -1275,7 +1283,11 @@ export function AdminDashboard() {
                       <td>
                         <span className={`admin-status-pill ${l.reply ? 'admin-status-approved' : 'admin-status-pending'}`}>
                           <span className="admin-status-dot" />
-                          {l.reply ? 'تم الرد ✓' : 'في انتظار الرد'}
+                          {l.reply ? (
+                            <><i className="fa-solid fa-check" style={{ marginInlineEnd: '4px' }}></i> تم الرد</>
+                          ) : (
+                            'في انتظار الرد'
+                          )}
                         </span>
                       </td>
                       <td>
@@ -1314,7 +1326,7 @@ export function AdminDashboard() {
                     <tr>
                       <td colSpan={6}>
                         <div className="admin-empty-state">
-                          <div className="admin-empty-icon">📬</div>
+                          <div className="admin-empty-icon"><i className="fa-regular fa-envelope-open"></i></div>
                           <div className="admin-empty-title">لا توجد استفسارات حالياً</div>
                           <div className="admin-empty-desc">أي طالب أو زائر يسجل استفساراً في الصفحة الرئيسية أو لوحة التحكم سيظهر هنا فوراً.</div>
                         </div>
@@ -1385,7 +1397,7 @@ export function AdminDashboard() {
                     <tr>
                       <td colSpan={5}>
                         <div className="admin-empty-state">
-                          <div className="admin-empty-icon">💳</div>
+                          <div className="admin-empty-icon"><i className="fa-solid fa-credit-card"></i></div>
                           <div className="admin-empty-title">لا توجد عمليات مسجلة بعد</div>
                         </div>
                       </td>

@@ -17,7 +17,7 @@ export function AuthView({ mode }) {
         <div className="auth-mobile-actions">
           <ThemeToggle ariaLabel="تبديل الوضع" />
           <a className="back-link" href="/" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>
-            ← الرئيسية
+            <i className="fa-solid fa-arrow-right" style={{ marginInlineEnd: '6px' }}></i> الرئيسية
           </a>
         </div>
       </header>
@@ -25,7 +25,7 @@ export function AuthView({ mode }) {
       <aside className="ab">
         <img className="alg" src="assets/Asset_103.png" alt="أكاديمية خطوة" width="42" height="56" />
         <a className="back" href="/" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>
-          ← الرئيسية
+          <i className="fa-solid fa-arrow-right" style={{ marginInlineEnd: '6px' }}></i> الرئيسية
         </a>
         <div className="stairs" style={{ '--u': 'clamp(24px,3.2vw,44px)' }} aria-hidden="true">
           <i style={{ '--n': 1 }}></i><i style={{ '--n': 2 }}></i><i style={{ '--n': 3 }}></i>
@@ -103,7 +103,7 @@ export function AuthView({ mode }) {
 
             <button className="go" type="submit">
               <span>{reg ? 'ابدأ خطوتك' : 'دخول'}</span>
-              <b>←</b>
+              <b><i className="fa-solid fa-arrow-left"></i></b>
             </button>
           </form>
         </div>

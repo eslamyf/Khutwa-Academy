@@ -372,7 +372,7 @@ export function WatchView({ cid = 'frontend', lid }) {
               {/* Locked Lesson Overlay */}
               {!isLessonAccessible && (
                 <div className="watch-ov on">
-                  <div className="watch-ov-icon">🔒</div>
+                  <div className="watch-ov-icon"><i className="fa-solid fa-lock"></i></div>
                   <b>الدرس ده ضمن الاشتراك</b>
                   <span>اشترك مرة واحدة وافتح كل المحطات مع إشراف وتطبيق عملي كل أسبوع.</span>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '6px' }}>
@@ -395,7 +395,7 @@ export function WatchView({ cid = 'frontend', lid }) {
               {/* Error Overlay */}
               {isLessonAccessible && playerError && (
                 <div className="watch-ov on">
-                  <div className="watch-ov-icon">⚠️</div>
+                  <div className="watch-ov-icon"><i className="fa-solid fa-triangle-exclamation"></i></div>
                   <b>تعذر تحميل الفيديو</b>
                   <span>{playerError}</span>
                   <button className="watch-cta-btn" onClick={handleRetryVideo}>
@@ -424,7 +424,7 @@ export function WatchView({ cid = 'frontend', lid }) {
           {/* Chips Row */}
           <div className="watch-chips-row">
             <span className="watch-chip">
-              ⏱ {toArabicDigits(currentLesson?.duration || 0)} دقيقة
+              <i className="fa-regular fa-clock" style={{ marginInlineEnd: '4px' }}></i> {toArabicDigits(currentLesson?.duration || 0)} دقيقة
             </span>
             <span className="watch-chip">
               المحطة {toArabicDigits(activeIndex + 1)} من {toArabicDigits(totalCount)}
@@ -441,7 +441,7 @@ export function WatchView({ cid = 'frontend', lid }) {
               onClick={() => currentLesson && toggleCompleted(currentLesson.id)}
             >
               <i className={isDone ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle-check'}></i>
-              <span>{isDone ? '✓ تم إنهاء الدرس' : 'خلصت الدرس'}</span>
+              <span>{isDone ? 'تم إنهاء الدرس' : 'خلصت الدرس'}</span>
             </button>
 
             {activeIndex > 0 && (
@@ -449,7 +449,7 @@ export function WatchView({ cid = 'frontend', lid }) {
                 className="watch-ghost-btn"
                 onClick={() => goToLesson(lessons[activeIndex - 1].id)}
               >
-                → السابق
+                <i className="fa-solid fa-chevron-right" style={{ marginInlineEnd: '4px' }}></i> السابق
               </button>
             )}
 
@@ -458,7 +458,7 @@ export function WatchView({ cid = 'frontend', lid }) {
                 className="watch-ghost-btn"
                 onClick={() => goToLesson(lessons[activeIndex + 1].id)}
               >
-                التالي ←
+                التالي <i className="fa-solid fa-chevron-left" style={{ marginInlineStart: '4px' }}></i>
               </button>
             )}
 
@@ -579,12 +579,12 @@ export function WatchView({ cid = 'frontend', lid }) {
                     title={item.title}
                   >
                     <span className="watch-lesson-num">
-                      {itemDone ? '✓' : toArabicDigits(idx + 1)}
+                      {itemDone ? <i className="fa-solid fa-check"></i> : toArabicDigits(idx + 1)}
                     </span>
                     <span className="watch-lesson-info">
                       <span className="watch-lesson-title">{item.title}</span>
                       <small className="watch-lesson-meta">
-                        {toArabicDigits(item.duration)} د {isLocked ? '· 🔒' : ''}
+                        <i className="fa-regular fa-clock" style={{ fontSize: '10px' }}></i> {toArabicDigits(item.duration)} د {isLocked && <> · <i className="fa-solid fa-lock" style={{ fontSize: '10px' }}></i></>}
                       </small>
                     </span>
                     {item.isFree && (

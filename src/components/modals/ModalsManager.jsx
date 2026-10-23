@@ -28,7 +28,9 @@ export function ModalsManager() {
         onClick={(e) => e.stopPropagation()}
         aria-modal="true"
       >
-        <button className="x" onClick={() => setDialogContent(null)} aria-label="إغلاق">✕</button>
+        <button className="x" onClick={() => setDialogContent(null)} aria-label="إغلاق">
+          <i className="fa-solid fa-xmark"></i>
+        </button>
         {dialogContent.type === 'vodafone_insta_pay' && (
           <SubscriptionModal dialogContent={dialogContent} />
         )}

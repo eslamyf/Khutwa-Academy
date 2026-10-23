@@ -9,7 +9,8 @@ const TRACK_PRESETS = {
     marqueeWords: ['HTML', 'CSS', 'JavaScript', 'Responsive', 'Deploy', 'Portfolio'],
     instructorBadge: 'محاضر المسار والمدرب العملي',
     vtRole: 'WEB MENTOR · SENIOR FRONTEND ENGINEER',
-    endTitle: '🏁 وصلت',
+    endIcon: 'fa-flag-checkered',
+    endTitle: 'وصلت',
     endSub: 'مشروعك أونلاين وفي البورتفوليو بتاعك'
   },
   ux: {
@@ -17,7 +18,8 @@ const TRACK_PRESETS = {
     marqueeWords: ['UX Research', 'User Flow', 'Wireframing', 'Figma', 'UI Design', 'Design Systems', 'Interactive Prototyping'],
     instructorBadge: 'محاضرة المسار والمدربة العملية',
     vtRole: 'LEAD PRODUCT & UX/UI DESIGNER',
-    endTitle: '🎨 أتقنت التجربة',
+    endIcon: 'fa-palette',
+    endTitle: 'أتقنت التجربة',
     endSub: 'نموذجك التفاعلي كامل وموثق وجاهز للعرض في بيهانس'
   },
   marketing: {
@@ -25,7 +27,8 @@ const TRACK_PRESETS = {
     marqueeWords: ['Content Strategy', 'Social Media', 'Paid Ads', 'Copywriting', 'Analytics', 'Conversion Rate', 'Growth Marketing'],
     instructorBadge: 'محاضر المسار والمدرب العملي',
     vtRole: 'GROWTH & PERFORMANCE MARKETING SPECIALIST',
-    endTitle: '🚀 أطلقت أول حملة',
+    endIcon: 'fa-rocket',
+    endTitle: 'أطلقت أول حملة',
     endSub: 'حملتك شغالة وبتقيس أرقام ومبيعات حقيقية'
   }
 };
@@ -49,7 +52,8 @@ export function CourseView({ id }) {
     marqueeWords: ['تطبيق عملي', 'إشراف أسبوعي', 'مشاريع حقيقية', 'بورتفوليو قوي', 'أكاديمية خطوة'],
     instructorBadge: 'محاضر المسار والمدرب العملي',
     vtRole: 'COURSE INSTRUCTOR',
-    endTitle: '🏁 وصلت لنهاية المسار',
+    endIcon: 'fa-flag-checkered',
+    endTitle: 'وصلت لنهاية المسار',
     endSub: 'مشروعك أونلاين وفي البورتفوليو بتاعك يؤهلك لسوق العمل'
   };
 
@@ -167,7 +171,7 @@ export function CourseView({ id }) {
               </a>
             ) : pendingReq ? (
               <button className="ed-cta" disabled style={{ opacity: 0.8, cursor: 'default' }}>
-                ⏳ إيصال التحويل قيد المراجعة
+                <i className="fa-solid fa-hourglass-half" style={{ marginInlineEnd: '8px' }}></i> إيصال التحويل قيد المراجعة
               </button>
             ) : (
               <>
@@ -207,7 +211,7 @@ export function CourseView({ id }) {
       <div className="ed-mq" aria-hidden="true">
         <div>
           {[...preset.marqueeWords, ...preset.marqueeWords, ...preset.marqueeWords, ...preset.marqueeWords].map((word, idx) => (
-            <span key={idx}>{word} ✦</span>
+            <span key={idx}>{word} <i className="fa-solid fa-star" style={{ fontSize: '10px', marginInline: '8px', opacity: 0.8 }}></i></span>
           ))}
         </div>
       </div>
@@ -251,7 +255,7 @@ export function CourseView({ id }) {
                 </div>
 
                 <div className="ed-meta">
-                  <b>⏱ {lesson.min} د</b>
+                  <b><i className="fa-regular fa-clock" style={{ marginInlineEnd: '4px' }}></i> {lesson.min} د</b>
                   {canWatch ? (
                     isFree && !open ? (
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -263,16 +267,20 @@ export function CourseView({ id }) {
                             window.location.hash = `#/watch/${c.id}/${lesson.id}`;
                           }}
                         >
-                          ▶ شغّله
+                          <i className="fa-solid fa-play" style={{ fontSize: '11px', marginInlineEnd: '4px' }}></i> شغّله
                         </button>
                       </div>
                     ) : (
                       <span className="ed-free" style={{ background: 'rgba(43, 185, 211, 0.18)', color: 'var(--cyan)' }}>
-                        {en && en.done?.includes(lesson.id) ? '✓ تم الإنجاز' : '▶ متاح للمشاهدة'}
+                        {en && en.done?.includes(lesson.id) ? (
+                          <><i className="fa-solid fa-circle-check" style={{ marginInlineEnd: '4px' }}></i> تم الإنجاز</>
+                        ) : (
+                          <><i className="fa-solid fa-play" style={{ fontSize: '11px', marginInlineEnd: '4px' }}></i> متاح للمشاهدة</>
+                        )}
                       </span>
                     )
                   ) : (
-                    <span>🔒 بالاشتراك</span>
+                    <span><i className="fa-solid fa-lock" style={{ marginInlineEnd: '4px', fontSize: '12px' }}></i> بالاشتراك</span>
                   )}
                 </div>
               </article>
@@ -283,7 +291,10 @@ export function CourseView({ id }) {
 
       {/* 5. Clipped Completion Band */}
       <section className="ed-band">
-        <h2>{preset.endTitle}</h2>
+        <h2>
+          {preset.endIcon && <i className={`fa-solid ${preset.endIcon}`} style={{ marginInlineEnd: '12px' }}></i>}
+          {preset.endTitle}
+        </h2>
         <p>{preset.endSub}</p>
         {en ? (
           <a className="ed-cta" href={`#/watch/${c.id}/${c.lessons[0]?.id || ''}`}>

@@ -20,6 +20,20 @@ export function MobileMenu() {
     db
   } = useKhutwa();
 
+  React.useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('lock');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('lock');
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.classList.remove('lock');
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const isHome = !hash || hash === '#' || hash === '#/';
   const parts = hash.startsWith('#/') ? hash.slice(2).split('/') : [];
   const route = parts[0] || 'home';

@@ -117,7 +117,9 @@ export function LeadFormSection() {
           <button className="btn" type="submit">ابدأ خطوتك وأرسل استفسارك</button>
         </form>
         <p className="ok">وصلنا طلبك واستفسارك بنجاح. هنتواصل معاك قريباً جداً.</p>
-        <a href="#/auth/register" className="alt">أو اعمل حساب وابدأ دلوقتي ←</a>
+        <a href="#/auth/register" className="alt">
+          أو اعمل حساب وابدأ دلوقتي <i className="fa-solid fa-arrow-left" style={{ marginInlineStart: '4px' }}></i>
+        </a>
       </div>
 
       <div className="side">

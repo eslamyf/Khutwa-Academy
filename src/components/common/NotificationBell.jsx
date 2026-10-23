@@ -195,7 +195,7 @@ export function NotificationBell() {
                   </div>
                 ) : (
                   <div className="notif-empty-state">
-                    <div className="notif-empty-icon">🔔</div>
+                    <div className="notif-empty-icon"><i className="fa-regular fa-bell"></i></div>
                     <div className="notif-empty-title">لا توجد إشعارات جديدة حالياً</div>
                     <p className="notif-empty-desc">
                       عند إرسال أي استفسار والرد عليه من الإدارة، ستظهر لك إشعارات الردود ومقتطفاتها هنا فوراً.
@@ -266,7 +266,7 @@ export function NotificationBell() {
                   </div>
                 ) : (
                   <div className="notif-empty-state">
-                    <div className="notif-empty-icon">✓</div>
+                    <div className="notif-empty-icon"><i className="fa-solid fa-check-double"></i></div>
                     <div className="notif-empty-title">كل الطلبات والاستفسارات تمت معالجتها!</div>
                     <p className="notif-empty-desc">لا توجد طلبات اشتراك أو استفسارات معلقة في انتظار الرد.</p>
                   </div>

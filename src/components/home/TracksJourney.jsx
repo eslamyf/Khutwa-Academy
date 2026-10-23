@@ -31,52 +31,69 @@ export function TracksJourney() {
     let ys_val = [];
 
     function buildPath() {
+      // Clear inline height first so DOM can be measured accurately
+      J.style.minHeight = '';
+      J.style.height = '';
       const W = J.clientWidth;
       H_val = J.clientHeight;
       const m = W < 800;
-      const xs = m ? [0.88, 0.82, 0.88, 0.82] : [0.3, 0.7, 0.3, 0.5];
+      const xs = m ? [0.88, 0.84, 0.88, 0.82] : [0.3, 0.7, 0.3, 0.5];
 
       const titleEl = J.querySelector('.j-title-wrap');
-      const titleBottom = titleEl ? (titleEl.offsetTop + titleEl.offsetHeight) : (m ? 110 : 130);
-      const h0 = sts[0] ? sts[0].offsetHeight : (m ? 340 : 460);
-      const h1 = sts[1] ? sts[1].offsetHeight : (m ? 340 : 460);
-      const h2 = sts[2] ? sts[2].offsetHeight : (m ? 340 : 460);
+      const titleBottom = titleEl ? (titleEl.offsetTop + titleEl.offsetHeight) : (m ? 90 : 130);
+      const h0 = sts[0] ? sts[0].offsetHeight : 420;
+      const h1 = sts[1] ? sts[1].offsetHeight : 420;
+      const h2 = sts[2] ? sts[2].offsetHeight : 420;
 
+      let y0, y1, y2;
       if (m) {
-        // In mobile screens, ensure first card starts cleanly below the section title
-        const y0 = titleBottom + (h0 / 2) + 35;
-        const y1 = y0 + (h0 / 2) + (h1 / 2) + 65;
-        const y2 = y1 + (h1 / 2) + (h2 / 2) + 65;
-        ys_val = [y0, y1, y2];
+        // Balanced spacing on mobile: slightly increased to 34px
+        const gap = 34;
+        y0 = titleBottom + 35 + h0 / 2;
+        y1 = y0 + (h0 + h1) / 2 + gap;
+        y2 = y1 + (h1 + h2) / 2 + gap;
       } else {
-        // Desktop / Tablet dynamic spacing: never overlap cards or mentor details
-        const y0 = titleBottom + (h0 / 2) + 70;
-        const y1 = y0 + Math.max(h0 * 0.78, 430);
-        const y2 = y1 + Math.max(h1 * 0.78, 430);
-        ys_val = [y0, y1, y2];
+        const gap = 55;
+        y0 = titleBottom + 60 + h0 / 2;
+        y1 = y0 + (h0 + h1) * 0.45 + gap;
+        y2 = y1 + (h1 + h2) * 0.45 + gap;
       }
+      ys_val = [y0, y1, y2];
 
-      // Position the ending headline safely below the final track
       const endEl = endRef.current;
-      const endTextTop = ys_val[2] + (h2 / 2) + (m ? 85 : 130);
+      const st2Bottom = ys_val[2] + h2 / 2;
+      // Position ending text closer to button to eliminate trailing empty space
+      const endTextTop = st2Bottom + (m ? 55 : 95);
       if (endEl) {
         endEl.style.top = `${endTextTop}px`;
         endEl.style.bottom = 'auto';
       }
 
-      // Ensure container has plenty of breathing room
-      const requiredHeight = endTextTop + (endEl ? endEl.offsetHeight : 80) + (m ? 80 : 130);
-      if (H_val < requiredHeight) {
-        J.style.minHeight = `${requiredHeight}px`;
-        H_val = requiredHeight;
-      }
+      // Lengthen the rope: descend cleanly past the button before curving into center
+      const ropePastButtonY = st2Bottom + (m ? 18 : 30);
+      const endY = endTextTop - 18;
 
-      // Smooth path start from underneath section title, ending cleanly above footer banner
-      const startY = titleBottom + 12;
-      const startX = m ? W * 0.88 : W * 0.5;
-      const endY = endTextTop - 25;
+      const endHeight = endEl ? endEl.offsetHeight : 45;
+      const requiredHeight = endTextTop + endHeight + (m ? 24 : 70);
+      J.style.minHeight = `${requiredHeight}px`;
+      J.style.height = `${requiredHeight}px`;
+      H_val = requiredHeight;
 
-      const pts = [[startX, startY], ...ys_val.map((y, i) => [W * xs[i], y]), [W * 0.5, endY]];
+      const startY = titleBottom + 16;
+      const pts = m
+        ? [
+            [W * 0.88, startY],
+            [W * xs[0], ys_val[0]],
+            [W * xs[1], ys_val[1]],
+            [W * xs[2], ys_val[2]],
+            [W * 0.88, ropePastButtonY],
+            [W * 0.5, endY]
+          ]
+        : [
+            [W * 0.5, startY],
+            ...ys_val.map((y, i) => [W * xs[i], y]),
+            [W * 0.5, endY]
+          ];
 
       let d = `M${pts[0][0]},${pts[0][1]}`;
       for (let i = 1; i < pts.length; i++) {
@@ -94,17 +111,14 @@ export function TracksJourney() {
       sts.forEach((s, i) => {
         s.style.top = ys_val[i] - s.offsetHeight / 2 + 'px';
         if (m) {
-          s.style.insetInlineEnd = '16px';
-          s.style.insetInlineStart = '16px';
-          s.style.marginInline = 'auto';
+          s.style.insetInlineEnd = '4vw';
+          s.style.insetInlineStart = 'auto';
         } else if (xs[i] < 0.5) {
           s.style.insetInlineStart = '6%';
           s.style.insetInlineEnd = 'auto';
-          s.style.marginInline = '0';
         } else {
           s.style.insetInlineEnd = '6%';
           s.style.insetInlineStart = 'auto';
-          s.style.marginInline = '0';
         }
       });
       updateScroll();
@@ -119,26 +133,35 @@ export function TracksJourney() {
       return lo;
     }
 
+    let ticking = false;
     function updateScroll() {
-      if (!J || !pf || !ic) return;
-      const r = J.getBoundingClientRect();
-      const p = Math.max(0, Math.min(1, (window.innerHeight * 0.85 - r.top) / (H_val + window.innerHeight * 0.08)));
-      pf.style.strokeDashoffset = L_len * (1 - p);
-      const pt = pf.getPointAtLength(L_len * p);
-      ic.style.transform = `translate(${pt.x - 29}px,${pt.y - 48}px)`;
+      if (!J || !pf || !ic || L_len <= 0) return;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const r = J.getBoundingClientRect();
+          const p = Math.max(0, Math.min(1, (window.innerHeight * 0.85 - r.top) / (H_val + window.innerHeight * 0.08)));
+          pf.style.strokeDashoffset = L_len * (1 - p);
+          const pt = pf.getPointAtLength(L_len * p);
+          ic.style.transform = `translate3d(${pt.x - 29}px,${pt.y - 48}px,0)`;
 
-      sts.forEach((s, i) => {
-        const sRect = s.getBoundingClientRect();
-        // تفعيل معتدل ووسطي: عندما يصل الكورس لمنتصف مجال الرؤية أو يصله المسار
-        const isInFocus = sRect.top < window.innerHeight * 0.58 && sRect.bottom > 80;
-        const isPathReached = (L_len * p) >= (lenAt(ys_val[i]) - 40);
-        s.classList.toggle('on', isInFocus || isPathReached);
-      });
+          sts.forEach((s, i) => {
+            const sRect = s.getBoundingClientRect();
+            // تفعيل معتدل ووسطي: عندما يصل الكورس لمنتصف مجال الرؤية أو يصله المسار
+            const isInFocus = sRect.top < window.innerHeight * 0.58 && sRect.bottom > 80;
+            const isPathReached = (L_len * p) >= (lenAt(ys_val[i]) - 40);
+            s.classList.toggle('on', isInFocus || isPathReached);
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
     }
 
     window.addEventListener('scroll', updateScroll, { passive: true });
     window.addEventListener('resize', buildPath);
-    document.fonts.ready.then(buildPath);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(buildPath);
+    }
     buildPath();
 
     return () => {

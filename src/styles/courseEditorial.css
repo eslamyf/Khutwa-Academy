@@ -69,12 +69,12 @@
 
 h1.ed-big {
   font-family: "Readex Pro", "Cairo", sans-serif;
-  font-size: clamp(44px, 7.5vw, 104px);
+  font-size: clamp(42px, 7vw, 98px);
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  line-height: 1.18;
+  letter-spacing: normal;
   color: var(--fg);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 h1.ed-big span {
@@ -82,9 +82,15 @@ h1.ed-big span {
 }
 
 h1.ed-big .ed-o {
-  color: transparent;
-  -webkit-text-stroke: 2.5px var(--cyan);
-  transition: -webkit-text-stroke 0.3s;
+  color: var(--cyan);
+  -webkit-text-stroke: 0 !important;
+  text-shadow: 0 4px 28px rgba(43, 185, 211, 0.4);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+[data-theme="light"] h1.ed-big .ed-o {
+  color: #128fa6;
+  text-shadow: none;
 }
 
 .ed-lead {

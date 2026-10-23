@@ -46,7 +46,9 @@ export function StudentDashboard() {
           </div>
           <div>
             <b>كمّل بياناتك ({n}/5)</b><br />
-            <button className="lnk" onClick={() => setDtab('profile')}>كمّل دلوقتي ←</button>
+            <button className="lnk" onClick={() => setDtab('profile')}>
+              كمّل دلوقتي <i className="fa-solid fa-arrow-left" style={{ marginInlineStart: '4px' }}></i>
+            </button>
           </div>
         </div>
       )}
@@ -61,7 +63,7 @@ export function StudentDashboard() {
               {userPendingCourses.map((pr) => (
                 <div key={pr.id} className="banner" style={{ borderInlineStartColor: 'var(--cyan)' }}>
                   <div>
-                    <b>⏳ {pr.courseTitle} — {pr.price} ج.م</b>
+                    <b><i className="fa-solid fa-hourglass-half" style={{ marginInlineEnd: '6px' }}></i> {pr.courseTitle} — {pr.price} ج.م</b>
                     <p className="hint">
                       تم إرسال إيصال التحويل عبر {pr.method === 'vodafone' ? 'فودافون كاش' : 'إنستاباي'}. سيقوم الأدمن بمراجعته وفتح الكورس لك قريباً.
                     </p>
@@ -162,7 +164,7 @@ export function StudentDashboard() {
             <div className="wallet-pending-alert">
               {userPendingTopups.map((top) => (
                 <div key={top.id} className="wallet-pending-item">
-                  <div className="pending-icon">⏳</div>
+                  <div className="pending-icon"><i className="fa-solid fa-hourglass-half"></i></div>
                   <div className="pending-content">
                     <b>طلب شحن رصيد بقيمة {top.amount || top.price} ج.م قيد المراجعة</b>
                     <p>
@@ -319,7 +321,7 @@ export function StudentDashboard() {
                 </table>
               ) : (
                 <div className="wallet-empty-state">
-                  <div className="wallet-empty-icon">💸</div>
+                  <div className="wallet-empty-icon"><i className="fa-solid fa-wallet"></i></div>
                   <div className="wallet-empty-title">لا توجد عمليات سابقة حتى الآن</div>
                   <div className="wallet-empty-desc">
                     عند شحن رصيدك أو الاشتراك في أي دورة تدريبية، ستظهر كافة تفاصيل المعاملات هنا.
@@ -400,7 +402,7 @@ export function StudentDashboard() {
                 required
               />
               <button className="btn" type="submit">إرسال الاستفسار الآن</button>
-              {inqSent && <span className="inq-sent-badge">✓ تم الإرسال بنجاح</span>}
+              {inqSent && <span className="inq-sent-badge"><i className="fa-solid fa-circle-check" style={{ marginInlineEnd: '4px' }}></i> تم الإرسال بنجاح</span>}
             </form>
           </div>
 
@@ -414,7 +416,11 @@ export function StudentDashboard() {
                     <span className="inq-track-badge">{getCourse(inq.track)?.title || inq.track}</span>
                     <span className="inq-date">{fmt(inq.date)}</span>
                     <span className={`inq-status-badge ${inq.reply ? 'status-answered' : 'status-pending'}`}>
-                      {inq.reply ? '✓ تم الرد من الأكاديمية' : '⏳ قيد المراجعة'}
+                      {inq.reply ? (
+                        <><i className="fa-solid fa-circle-check" style={{ marginInlineEnd: '4px' }}></i> تم الرد من الأكاديمية</>
+                      ) : (
+                        <><i className="fa-solid fa-hourglass-half" style={{ marginInlineEnd: '4px' }}></i> قيد المراجعة</>
+                      )}
                     </span>
                     {inq.reply && !inq.readByStudent && (
                       <button
@@ -454,7 +460,7 @@ export function StudentDashboard() {
             </div>
           ) : (
             <div className="admin-empty-state" style={{ marginTop: '20px' }}>
-              <div className="admin-empty-icon">💬</div>
+              <div className="admin-empty-icon"><i className="fa-solid fa-comments"></i></div>
               <div className="admin-empty-title">لا توجد استفسارات سابقة</div>
               <div className="admin-empty-desc">يمكنك كتابة أي استفسار أو سؤال في النموذج بالأعلى وسيقوم فريق الأكاديمية بالرد عليك مباشرة.</div>
             </div>

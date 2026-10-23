@@ -169,7 +169,7 @@ export function StudentManageModal({ dialogContent }) {
             className="btn btn-sm"
             onClick={() => setShowPassSection(!showPassSection)}
           >
-            {showPassSection ? 'إلغاء' : '🔑 إعادة تعيين كلمة المرور'}
+            {showPassSection ? 'إلغاء' : <><i className="fa-solid fa-key" style={{ marginInlineEnd: '6px' }}></i> إعادة تعيين كلمة المرور</>}
           </button>
         </div>
 
@@ -324,14 +324,18 @@ export function StudentManageModal({ dialogContent }) {
           style={{ borderColor: stu.status === 'blocked' ? '#10b981' : '#f59e0b', color: stu.status === 'blocked' ? '#10b981' : '#f59e0b' }}
           onClick={handleToggleStatus}
         >
-          {stu.status === 'blocked' ? '✓ تفعيل وإلغاء حظر الحساب' : '⚠️ إيقاف وحظر حساب الطالب'}
+          {stu.status === 'blocked' ? (
+            <><i className="fa-solid fa-user-check" style={{ marginInlineEnd: '6px' }}></i> تفعيل وإلغاء حظر الحساب</>
+          ) : (
+            <><i className="fa-solid fa-ban" style={{ marginInlineEnd: '6px' }}></i> إيقاف وحظر حساب الطالب</>
+          )}
         </button>
         <button
           type="button"
           className="admin-action-btn-delete"
           onClick={handleDeleteStudent}
         >
-          🗑️ حذف الحساب بالكامل
+          <i className="fa-solid fa-trash-can" style={{ marginInlineEnd: '6px' }}></i> حذف الحساب بالكامل
         </button>
       </div>
     </div>
