@@ -17,15 +17,24 @@ export function Header() {
     window.location.hash = user.role === 'admin' ? '#/admin' : '#/dashboard';
   };
 
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      window.history.pushState(null, '', '/');
+      window.dispatchEvent(new Event('popstate'));
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    } catch {
+      window.location.hash = '';
+    }
+  };
+
+
   return (
     <header>
       <a
         href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          window.location.hash = '';
-        }}
+        onClick={handleHomeClick}
         style={{ cursor: 'pointer', display: 'inline-flex' }}
       >
         <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" />
@@ -36,14 +45,11 @@ export function Header() {
       <nav className="desktop-nav">
         <a
           href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            window.location.hash = '';
-          }}
+          onClick={handleHomeClick}
         >
           الرئيسية
         </a>
+
         <a
           href="#/dashboard"
           onClick={handleMyCoursesClick}

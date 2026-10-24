@@ -1,0 +1,308 @@
+/* ==========================================================================
+   Khutwa Academy — 403 Forbidden / Admin Access Restricted Styles
+   Enterprise-Grade Access Gateway (Aligned with Global EdTech Platforms)
+   ========================================================================== */
+
+.ar-page {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 74px - 100px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 5vw 64px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Background ambient glow orbs */
+.ar-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(85px);
+  opacity: 0.24;
+  z-index: 0;
+}
+
+.ar-orb-1 {
+  width: 340px;
+  height: 340px;
+  top: 10%;
+  right: 18%;
+  background: var(--cyan);
+}
+
+.ar-orb-2 {
+  width: 380px;
+  height: 380px;
+  bottom: 8%;
+  left: 18%;
+  background: var(--indigo);
+}
+
+[data-theme="light"] .ar-orb {
+  opacity: 0.14;
+  filter: blur(95px);
+}
+
+/* Central Card */
+.ar-card {
+  position: relative;
+  z-index: 1;
+  max-width: 660px;
+  width: 100%;
+  background: rgba(40, 47, 133, 0.32);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 44px 36px;
+  text-align: center;
+  box-shadow: 0 24px 52px -12px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: arFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-theme="light"] .ar-card {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 44px -10px rgba(27, 32, 80, 0.08);
+  border: 1px solid rgba(43, 185, 211, 0.25);
+}
+
+@keyframes arFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Shield Icon & Glow Badge */
+.ar-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(43, 185, 211, 0.22), rgba(40, 47, 133, 0.4));
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 32px rgba(43, 185, 211, 0.35);
+  margin-bottom: 22px;
+  color: var(--cyan);
+  font-size: 2.2rem;
+  position: relative;
+}
+
+[data-theme="light"] .ar-icon-wrap {
+  background: linear-gradient(135deg, rgba(43, 185, 211, 0.15), rgba(40, 47, 133, 0.1));
+  box-shadow: 0 8px 24px rgba(43, 185, 211, 0.25);
+}
+
+.ar-icon-wrap i {
+  animation: arPulse 3s ease-in-out infinite;
+}
+
+@keyframes arPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* Status Pill */
+.ar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 50px;
+  background: rgba(43, 185, 211, 0.12);
+  border: 1px solid rgba(43, 185, 211, 0.3);
+  color: var(--cyan);
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.ar-pill i {
+  font-size: 0.82rem;
+}
+
+/* Headings */
+.ar-title {
+  font-size: clamp(1.4rem, 3.2vw, 1.85rem);
+  font-weight: 900;
+  color: var(--fg);
+  margin: 0 0 12px;
+  line-height: 1.35;
+}
+
+.ar-desc {
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto 24px;
+}
+
+/* User Identity Info Card */
+.ar-user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  margin: 0 auto 28px;
+  max-width: 520px;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .ar-user-card {
+  background: rgba(27, 32, 80, 0.03);
+  border: 1px solid rgba(40, 47, 133, 0.12);
+}
+
+.ar-user-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ar-user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--indigo));
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  display: grid;
+  place-content: center;
+  box-shadow: 0 4px 12px rgba(43, 185, 211, 0.25);
+  flex-shrink: 0;
+}
+
+.ar-user-name {
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: var(--fg);
+  margin: 0 0 2px;
+}
+
+.ar-user-email {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.ar-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(43, 185, 211, 0.15);
+  color: var(--cyan);
+  border: 1px solid rgba(43, 185, 211, 0.35);
+  white-space: nowrap;
+}
+
+/* Action Buttons */
+.ar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.ar-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--cyan), #2099af);
+  color: #fff !important;
+  font-weight: 800;
+  font-size: 1.02rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(43, 185, 211, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ar-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(43, 185, 211, 0.45);
+}
+
+.ar-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--fg) !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.ar-btn-secondary:hover {
+  background: rgba(43, 185, 211, 0.08);
+  border-color: var(--cyan);
+  color: var(--cyan) !important;
+}
+
+.ar-link-home {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ar-link-home:hover {
+  color: var(--cyan);
+}
+
+@media (max-width: 600px) {
+  .ar-card {
+    padding: 32px 20px;
+  }
+  .ar-user-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .ar-role-badge {
+    align-self: flex-start;
+  }
+}

@@ -31,10 +31,10 @@ export function StudentDashboard() {
   if (!user) return null;
   const p = user.profile || {};
   const n = [user.phone, p.university, p.faculty, p.year, p.goal].filter(Boolean).length;
-  const mine = db.enr.filter((e) => e.u === user.id);
+  const mine = (db.enr || []).filter((e) => e.u === user.id);
   const userPendingCourses = (db.subRequests || []).filter((s) => s.userId === user.id && (!s.type || s.type !== 'topup') && s.status === 'pending');
   const userPendingTopups = (db.subRequests || []).filter((s) => s.userId === user.id && s.type === 'topup' && s.status === 'pending');
-  const free = db.courses.filter((c) => c.pub && !mine.some((e) => e.c === c.id));
+  const free = (db.courses || []).filter((c) => c.pub && !mine.some((e) => e.c === c.id));
 
   const myInquiries = (db.leads || []).filter((l) =>
     l.userId === user.id ||
@@ -151,18 +151,20 @@ export function StudentDashboard() {
             mine.map((e) => {
               const c = getCourse(e.c);
               if (!c) return null;
-              const pc = c.lessons.length ? Math.round((e.done.length / c.lessons.length) * 100) : 0;
+              const lessons = c.lessons || [];
+              const done = e.done || [];
+              const pc = lessons.length ? Math.round((done.length / lessons.length) * 100) : 0;
               return (
                 <div key={e.c} className="rw">
                   <div className="mn">
                     <div className="th">{c.img ? <img src={c.img} alt="" /> : (ART[c.id] || ART.gen)}</div>
                     <div>
                       <b>{c.title}</b>
-                      <small>{e.done.length} من {c.lessons.length} فيديو · {pc}%</small>
+                      <small>{done.length} من {lessons.length} فيديو · {pc}%</small>
                       <div className="bar"><i style={{ width: `${pc}%` }}></i></div>
                     </div>
                   </div>
-                  <a className="btn" href={`#/watch/${c.id}/${c.lessons[0]?.id || ''}`}>كمّل</a>
+                  <a className="btn" href={`#/watch/${c.id}/${lessons[0]?.id || ''}`}>كمّل</a>
                 </div>
               );
             })

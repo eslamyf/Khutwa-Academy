@@ -118,15 +118,40 @@
   --hbg: #F3F8FB;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  caret-color: transparent;
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  caret-color: var(--cyan);
+}
+
+h1, h2, h3, h4, h5, h6,
+.hero-title, .hero-title *,
+.l, .l-brand, .l-main, .l-sub,
+.stats-sec, .stats-sec *,
+.stairs-wrapper,
+header, footer {
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+a, button, [role="button"], .lnk, .st-cta, .hero-cta-btn {
+  cursor: pointer;
 }
 
 html {
   scroll-behavior: smooth;
 }
+
 
 body {
   font-family: 'Cairo', 'Poppins', system-ui, -apple-system, sans-serif;
@@ -713,6 +738,7 @@ h1 .l span {
   opacity: 0.35;
   transform: translateY(18px);
   transition: opacity 0.55s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 4;
 }
 
 .st.on {
@@ -1923,6 +1949,19 @@ body.lock {
   background: var(--bg);
   color: var(--fg);
 }
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main-content {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
 
 .tb {
   position: sticky;

@@ -10,9 +10,8 @@ export function AuthView({ mode }) {
     <div className="au">
       {/* Mobile top bar with brand, theme toggle & back link */}
       <header className="auth-mobile-bar">
-        <a className="auth-brand-mobile" href="/" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>
+        <a className="auth-brand-mobile" href="/" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} title="أكاديمية خطوة — الرئيسية">
           <img src="assets/Asset_103.png" alt="أكاديمية خطوة" width="34" height="46" />
-          <span>أكاديمية خطوة</span>
         </a>
         <div className="auth-mobile-actions">
           <ThemeToggle ariaLabel="تبديل الوضع" />

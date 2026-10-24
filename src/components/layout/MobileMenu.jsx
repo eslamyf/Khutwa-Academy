@@ -36,7 +36,7 @@ export function MobileMenu() {
   }, [mobileMenuOpen]);
 
   const isHome = !hash || hash === '#' || hash === '#/';
-  const parts = hash.startsWith('#/') ? hash.slice(2).split('/') : [];
+  const parts = (hash || '').startsWith('#/') ? (hash || '').slice(2).split('/') : [];
   const route = parts[0] || 'home';
   const paramA = parts[1];
 
@@ -277,7 +277,7 @@ export function MobileMenu() {
                 </button>
 
                 <button
-                  className={`mob-nav-link mob-anim-item ${hash.startsWith('#/dashboard') ? 'active' : ''}`}
+                  className={`mob-nav-link mob-anim-item ${(hash || '').startsWith('#/dashboard') ? 'active' : ''}`}
                   style={{ '--i': 4 }}
                   onClick={() => {
                     setMobileMenuOpen(false);
@@ -288,7 +288,7 @@ export function MobileMenu() {
                   <span>لوحة التحكم / كورساتي</span>
                 </button>
 
-                {hash.startsWith('#/dashboard') && (
+                {(hash || '').startsWith('#/dashboard') && (
                   <div className="mob-sub-nav-group mob-anim-item" style={{ '--i': 5 }}>
                     <button
                       className={`mob-sub-link ${dtab === 'courses' ? 'active' : ''}`}
@@ -342,7 +342,7 @@ export function MobileMenu() {
                 {user?.role === 'admin' && (
                   <>
                     <button
-                      className={`mob-nav-link mob-anim-item ${hash.startsWith('#/admin') ? 'active' : ''}`}
+                      className={`mob-nav-link mob-anim-item ${(hash || '').startsWith('#/admin') ? 'active' : ''}`}
                       style={{ '--i': 6 }}
                       onClick={() => {
                         setMobileMenuOpen(false);
@@ -360,7 +360,7 @@ export function MobileMenu() {
                       </span>
                     </button>
 
-                    {hash.startsWith('#/admin') && (
+                    {(hash || '').startsWith('#/admin') && (
                       <div className="mob-sub-nav-group mob-anim-item" style={{ '--i': 7 }}>
                         <button
                           className={`mob-sub-link ${atab === 'ov' ? 'active' : ''}`}

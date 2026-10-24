@@ -38,8 +38,8 @@ export function AdminDashboard() {
 
   if (!user || user.role !== 'admin') return null;
 
-  const st = db.users.filter((u) => u.role === 'student');
-  const rev = db.tx.filter((t) => t.type === 'purchase').reduce((s, t) => s + Math.abs(t.amount || 0), 0);
+  const st = (db.users || []).filter((u) => u.role === 'student');
+  const rev = (db.tx || []).filter((t) => t.type === 'purchase').reduce((s, t) => s + Math.abs(t.amount || 0), 0);
   const subList = db.subRequests || [];
 
   const pendingSubCount = subList.filter((s) => s.status === 'pending').length;

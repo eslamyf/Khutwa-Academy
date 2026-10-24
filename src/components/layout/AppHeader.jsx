@@ -7,6 +7,7 @@ export function AppHeader() {
   const {
     user,
     hash,
+    pathname,
     dtab,
     setDtab,
     atab,
@@ -22,8 +23,15 @@ export function AppHeader() {
     getCourse
   } = useKhutwa();
 
-  // Determine current page context and back target
-  const parts = hash.slice(2).split('/');
+  // Determine current page context and back target (support both pathname and hash)
+  let activePath = '';
+  if (hash && hash !== '#' && hash !== '#/') {
+    activePath = hash.startsWith('#/') ? hash.slice(2) : hash.replace(/^#+/, '');
+  } else if (pathname && pathname !== '/' && pathname !== '/index.html') {
+    activePath = pathname.replace(/^\/+/, '');
+  }
+  const parts = activePath.split('/');
+
   const route = parts[0]; // course, watch, dashboard, admin, auth
   const paramA = parts[1];
   const paramB = parts[2];
@@ -58,7 +66,12 @@ export function AppHeader() {
 
   const handleBack = () => {
     if (backTarget === '#j') {
-      window.location.hash = '';
+      try {
+        window.history.pushState(null, '', '/');
+        window.dispatchEvent(new Event('popstate'));
+      } catch {
+        window.location.hash = '';
+      }
       setTimeout(() => {
         const el = document.getElementById('j');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -68,17 +81,30 @@ export function AppHeader() {
     }
   };
 
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      window.history.pushState(null, '', '/');
+      window.dispatchEvent(new Event('popstate'));
+    } catch {
+      window.location.hash = '';
+    }
+  };
+
+
   return (
     <header className="tb">
       <div className="tb-brand">
-        <a className="lg" href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} title="أكاديمية خطوة — الرئيسية">
+        <a className="lg" href="#" onClick={handleHomeClick} title="أكاديمية خطوة — الرئيسية">
           <img className="logo-d" src="assets/Asset_103.png" alt="أكاديمية خطوة" />
           <img className="logo-l" src="assets/Asset_42.png" alt="أكاديمية خطوة" />
         </a>
       </div>
 
       <nav className="desktop-nav">
-        <a href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>الرئيسية</a>
+        <a href="#" onClick={handleHomeClick}>الرئيسية</a>
+
 
         {backTarget && (
           <button
@@ -90,7 +116,7 @@ export function AppHeader() {
             <span>{backLabel}</span>
           </button>
         )}
-        {hash.startsWith('#/dashboard') && (
+        {(hash || '').startsWith('#/dashboard') && (
           <>
             <button className={dtab === 'courses' ? 'on' : ''} onClick={() => setDtab('courses')}>كورساتي</button>
             <button className={dtab === 'notifications' ? 'on' : ''} onClick={() => setDtab('notifications')}>
@@ -101,7 +127,7 @@ export function AppHeader() {
             <button className={dtab === 'wallet' ? 'on' : ''} onClick={() => setDtab('wallet')}>رصيدي</button>
           </>
         )}
-        {hash.startsWith('#/admin') && (
+        {(hash || '').startsWith('#/admin') && (
           <>
             <button className={atab === 'ov' ? 'on' : ''} onClick={() => { setAtab('ov'); setAedit(null); }}>نظرة عامة</button>
             <button className={atab === 'sub_requests' ? 'on' : ''} onClick={() => { setAtab('sub_requests'); setAedit(null); }}>
@@ -115,7 +141,7 @@ export function AppHeader() {
             </button>
           </>
         )}
-        {!hash.startsWith('#/dashboard') && !hash.startsWith('#/admin') && user && (
+        {!(hash || '').startsWith('#/dashboard') && !(hash || '').startsWith('#/admin') && user && (
           <button
             className="on"
             onClick={() => {

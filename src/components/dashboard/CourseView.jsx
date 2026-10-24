@@ -41,37 +41,15 @@ export function CourseView({ id }) {
   const botRef = useRef(null);
 
   const c = getCourse(id);
-  if (!c) return null;
-
-  const en = getEnrollment(user, c.id);
-  const pendingReq = getPendingSub(user, c.id);
-  const open = !!en || (user && user.role === 'admin');
-
-  const preset = TRACK_PRESETS[c.id] || {
-    heroTitleParts: ['من البداية', 'لاحتراف', 'المهارة'],
-    marqueeWords: ['تطبيق عملي', 'إشراف أسبوعي', 'مشاريع حقيقية', 'بورتفوليو قوي', 'أكاديمية خطوة'],
-    instructorBadge: 'محاضر المسار والمدرب العملي',
-    vtRole: 'COURSE INSTRUCTOR',
-    endIcon: 'fa-flag-checkered',
-    endTitle: 'وصلت لنهاية المسار',
-    endSub: 'مشروعك أونلاين وفي البورتفوليو بتاعك يؤهلك لسوق العمل'
-  };
-
-  const totMinutes = c.lessons.reduce((s, l) => s + (+l.min || 0), 0);
-  const hours = Math.floor(totMinutes / 60);
-  const mins = totMinutes % 60;
-  const timeFormatted = hours > 0 ? `${hours}:${mins < 10 ? '0' : ''}${mins}` : `${mins} د`;
-
-  const avatarSrc = c.instructorAvatar
-    ? (c.instructorAvatar.startsWith('/') || c.instructorAvatar.startsWith('http') ? c.instructorAvatar : `/${c.instructorAvatar}`)
-    : '/assets/mentors/eslam.jpg';
 
   // Interactive scroll rail and sticky bottom bar
   useEffect(() => {
+    if (!c) return;
     const handleScroll = () => {
       if (!lstRef.current) return;
       const r = lstRef.current.getBoundingClientRect();
       const m = window.innerHeight * 0.6;
+
 
       // Update vertical rail fill height
       if (fillRef.current) {
@@ -109,9 +87,35 @@ export function CourseView({ id }) {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, [c.id]);
+  }, [c?.id]);
+
+  if (!c) return null;
+
+  const en = getEnrollment(user, c.id);
+  const pendingReq = getPendingSub(user, c.id);
+  const open = !!en || (user && user.role === 'admin');
+
+  const preset = TRACK_PRESETS[c.id] || {
+    heroTitleParts: ['من البداية', 'لاحتراف', 'المهارة'],
+    marqueeWords: ['تطبيق عملي', 'إشراف أسبوعي', 'مشاريع حقيقية', 'بورتفوليو قوي', 'أكاديمية خطوة'],
+    instructorBadge: 'محاضر المسار والمدرب العملي',
+    vtRole: 'COURSE INSTRUCTOR',
+    endIcon: 'fa-flag-checkered',
+    endTitle: 'وصلت لنهاية المسار',
+    endSub: 'مشروعك أونلاين وفي البورتفوليو بتاعك يؤهلك لسوق العمل'
+  };
+
+  const totMinutes = c.lessons.reduce((s, l) => s + (+l.min || 0), 0);
+  const hours = Math.floor(totMinutes / 60);
+  const mins = totMinutes % 60;
+  const timeFormatted = hours > 0 ? `${hours}:${mins < 10 ? '0' : ''}${mins}` : `${mins} د`;
+
+  const avatarSrc = c.instructorAvatar
+    ? (c.instructorAvatar.startsWith('/') || c.instructorAvatar.startsWith('http') ? c.instructorAvatar : `/${c.instructorAvatar}`)
+    : '/assets/mentors/eslam.jpg';
 
   const handleOpenPayment = () => {
+
     if (!user) {
       setPend(c.id);
       showToast('يرجى تسجيل الدخول أو إنشاء حسابك أولاً لتأكيد الاشتراك');

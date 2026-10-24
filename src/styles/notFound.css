@@ -1,0 +1,408 @@
+/* ==========================================================================
+   Khutwa Academy — 404 Not Found Page Styles (Visual Identity Aligned)
+   ========================================================================== */
+
+.nf-page {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 74px - 100px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 5vw 64px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Subtle glowing background orbs */
+.nf-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  opacity: 0.28;
+  z-index: 0;
+}
+
+.nf-orb-1 {
+  width: 320px;
+  height: 320px;
+  top: 10%;
+  right: 15%;
+  background: var(--cyan);
+}
+
+.nf-orb-2 {
+  width: 360px;
+  height: 360px;
+  bottom: 12%;
+  left: 15%;
+  background: var(--indigo);
+}
+
+[data-theme="light"] .nf-orb {
+  opacity: 0.18;
+  filter: blur(90px);
+}
+
+/* Central Card */
+.nf-card {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  width: 100%;
+  background: rgba(40, 47, 133, 0.28);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 44px 36px;
+  text-align: center;
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: nfFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-theme="light"] .nf-card {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 16px 40px -10px rgba(27, 32, 80, 0.08);
+  border: 1px solid rgba(43, 185, 211, 0.22);
+}
+
+/* Creative Floating Compass/Route Badge */
+.nf-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(43, 185, 211, 0.2), rgba(40, 47, 133, 0.35));
+  border: 1.5px solid var(--cyan);
+  box-shadow: 0 0 28px rgba(43, 185, 211, 0.35);
+  margin-bottom: 20px;
+  animation: nfFloat 4s ease-in-out infinite;
+}
+
+.nf-icon-wrap i {
+  font-size: 2.4rem;
+  color: var(--cyan);
+}
+
+/* 404 Large typography */
+.nf-code {
+  font-family: 'Poppins', 'Cairo', sans-serif;
+  font-size: clamp(3.8rem, 8vw, 5.2rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin: 0 0 12px;
+  background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .nf-code {
+  background: linear-gradient(135deg, var(--ink) 40%, var(--cyt) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Status Pill Badge */
+.nf-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(43, 185, 211, 0.12);
+  color: var(--cyan);
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: 1px solid rgba(43, 185, 211, 0.25);
+  margin-bottom: 18px;
+}
+
+[data-theme="light"] .nf-badge {
+  background: rgba(23, 146, 172, 0.1);
+  color: var(--cyt);
+  border-color: rgba(23, 146, 172, 0.25);
+}
+
+/* Headings */
+.nf-title {
+  font-family: 'Cairo', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+  color: var(--fg);
+  margin: 0 0 14px;
+  line-height: 1.35;
+}
+
+.nf-desc {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 540px;
+  margin: 0 auto 24px;
+}
+
+[data-theme="light"] .nf-desc {
+  color: #3f4765;
+}
+
+/* Attempted Path Card */
+.nf-path-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: rgba(27, 32, 80, 0.55);
+  border: 1px dashed rgba(43, 185, 211, 0.35);
+  margin-bottom: 28px;
+  font-size: 0.92rem;
+}
+
+[data-theme="light"] .nf-path-card {
+  background: #f0f6fa;
+  border-color: rgba(23, 146, 172, 0.35);
+}
+
+.nf-path-label {
+  color: rgba(255, 255, 255, 0.7);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+[data-theme="light"] .nf-path-label {
+  color: #55627a;
+}
+
+.nf-path-value {
+  font-family: monospace, sans-serif;
+  direction: ltr;
+  unicode-bidi: isolate;
+  background: rgba(43, 185, 211, 0.16);
+  color: var(--cyan);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+[data-theme="light"] .nf-path-value {
+  color: #0b697c;
+  background: rgba(23, 146, 172, 0.14);
+}
+
+/* Valid tracks recommendation section */
+.nf-tracks-section {
+  margin-bottom: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.nf-tracks-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.nf-tracks-title i {
+  color: var(--cyan);
+}
+
+.nf-tracks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.nf-track-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.22s ease;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .nf-track-pill {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+.nf-track-pill i {
+  color: var(--cyan);
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.nf-track-pill:hover {
+  background: rgba(43, 185, 211, 0.15);
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+  color: var(--cyan);
+}
+
+/* Action Buttons */
+.nf-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.nf-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 26px;
+  border-radius: 12px;
+  background: var(--cyan);
+  color: #1B2050;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(43, 185, 211, 0.4);
+  transition: all 0.22s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.nf-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(43, 185, 211, 0.6);
+  background: #39c9e5;
+}
+
+.nf-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 1px solid var(--line);
+  transition: all 0.22s ease;
+  cursor: pointer;
+}
+
+.nf-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--cyan);
+  color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+[data-theme="light"] .nf-btn-secondary {
+  border-color: rgba(27, 32, 80, 0.2);
+}
+
+[data-theme="light"] .nf-btn-secondary:hover {
+  background: rgba(23, 146, 172, 0.08);
+}
+
+/* Support Help Link */
+.nf-help {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+[data-theme="light"] .nf-help {
+  color: #64748b;
+}
+
+.nf-help a {
+  color: var(--cyan);
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: 6px;
+  transition: opacity 0.2s;
+}
+
+.nf-help a:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+/* Animations */
+@keyframes nfFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+
+@keyframes nfFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .nf-card {
+    padding: 32px 20px;
+    border-radius: 20px;
+  }
+
+  .nf-icon-wrap {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 14px;
+  }
+
+  .nf-icon-wrap i {
+    font-size: 1.9rem;
+  }
+
+  .nf-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .nf-btn-primary,
+  .nf-btn-secondary {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .nf-tracks-grid {
+    grid-template-columns: 1fr;
+  }
+}

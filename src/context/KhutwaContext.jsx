@@ -5,12 +5,64 @@ import { LS, gid } from '../utils';
 
 export const KhutwaContext = createContext(null);
 
+export function getInitialRoute() {
+  if (typeof window === 'undefined') {
+    return { pathname: '/', hash: '' };
+  }
+  const rawPath = window.location.pathname || '/';
+  let rawHash = window.location.hash || '';
+  if (rawHash.startsWith('/#')) {
+    rawHash = rawHash.slice(1);
+  }
+
+  // 1. If URL has a mixed pathname + hash (e.g. /admin#/auth/login), clean the pathname
+  if (rawPath !== '/' && rawPath !== '/index.html' && rawHash && rawHash.startsWith('#/')) {
+    try {
+      window.history.replaceState(null, '', `/${rawHash}${window.location.search}`);
+    } catch {
+      /* ignore */
+    }
+    return { pathname: '/', hash: rawHash };
+  }
+
+  // 2. If URL has a pathname without hash (e.g. /admin or /das,mdnasm,d), normalize to hash
+  if (rawPath !== '/' && rawPath !== '/index.html' && !rawHash) {
+    const target = rawPath.replace(/^\/+/, '');
+    const cleanHash = `#/${target}`;
+    try {
+      window.history.replaceState(null, '', `/${cleanHash}${window.location.search}`);
+    } catch {
+      /* ignore */
+    }
+    return { pathname: '/', hash: cleanHash };
+  }
+
+  // 3. Clean up bare '#' from URL
+  if (rawHash === '#') {
+    try {
+      window.history.replaceState(null, '', `/${window.location.search}`);
+    } catch {
+      /* ignore */
+    }
+    return { pathname: rawPath, hash: '' };
+  }
+
+  return { pathname: rawPath, hash: rawHash };
+}
+
 export function KhutwaProvider({ children }) {
+  const initialRoute = getInitialRoute();
+
   const [db, setDb] = useState(() => {
     try {
       const raw = LS.get(DB_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
+        if (!parsed.users) parsed.users = initialSeed().users;
+        if (!parsed.enr) parsed.enr = [];
+        if (!parsed.tx) parsed.tx = [];
+        if (!parsed.leads) parsed.leads = [];
+        if (!parsed.notifications) parsed.notifications = [];
         if (!parsed.subRequests) parsed.subRequests = [];
         if (!parsed.settings) parsed.settings = {};
         if (!parsed.settings.vodafone || parsed.settings.vodafone === '01012345678') parsed.settings.vodafone = '01028103634';
@@ -69,7 +121,8 @@ export function KhutwaProvider({ children }) {
   });
 
   const [sid, setSid] = useState(() => LS.get(SESSION_KEY));
-  const [hash, setHash] = useState(() => window.location.hash || '');
+  const [hash, setHash] = useState(initialRoute.hash || '');
+  const [pathname, setPathname] = useState(initialRoute.pathname || '/');
   const [toastMsg, setToastMsg] = useState('');
   const [dialogContent, setDialogContent] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -92,13 +145,24 @@ export function KhutwaProvider({ children }) {
     }, 2600);
   };
 
+  const navigate = (target) => {
+    let clean = target || '';
+    if (!clean.startsWith('#') && clean !== '') {
+      clean = `#/${clean.replace(/^\/+/, '')}`;
+    }
+    if (window.location.hash !== clean) {
+      window.location.hash = clean;
+    }
+    setHash(clean);
+  };
+
   const currentUser = () => {
     const u = db.users.find((x) => x.id === sid);
     return u && u.status !== 'blocked' ? u : null;
   };
 
   const getCourse = (id) => db.courses.find((c) => c.id === id);
-  const getEnrollment = (u, cid) => u && db.enr.find((e) => e.u === u.id && e.c === cid);
+  const getEnrollment = (u, cid) => u && (db.enr || []).find((e) => e.u === u.id && e.c === cid);
   const getPendingSub = (u, cid) => u && (db.subRequests || []).find((s) => s.userId === u.id && s.courseId === cid && s.status === 'pending');
 
   // Theme toggle
@@ -116,25 +180,46 @@ export function KhutwaProvider({ children }) {
     });
   };
 
-  // Listen to hash changes and close mobile menu
+  // Listen to hash and pathname changes and close mobile menu
   useEffect(() => {
-    const onHashChange = () => {
-      setHash(window.location.hash || '');
+    const onLocationChange = () => {
+      const route = getInitialRoute();
+      setPathname(route.pathname || '/');
+      setHash(window.location.hash || route.hash || '');
       setMobileMenuOpen(false);
     };
+
     const onKeyDown = (e) => {
       if (e.key === 'Escape') setMobileMenuOpen(false);
     };
-    window.addEventListener('hashchange', onHashChange);
+
+    window.addEventListener('hashchange', onLocationChange);
+    window.addEventListener('popstate', onLocationChange);
     window.addEventListener('keydown', onKeyDown);
+
     return () => {
-      window.removeEventListener('hashchange', onHashChange);
+      window.removeEventListener('hashchange', onLocationChange);
+      window.removeEventListener('popstate', onLocationChange);
       window.removeEventListener('keydown', onKeyDown);
     };
   }, []);
 
-  // Update body lock class when app layer is open
-  const isAppOpen = hash.startsWith('#/');
+
+  // Check if pathname has a non-root route (e.g. /das,mdnasm,d or /course/frontend)
+  const isPathRoute = pathname !== '/' && pathname !== '/index.html';
+
+  // Hashes that belong strictly to landing page sections
+  const LANDING_HASHES = ['', '#', '#stats', '#j', '#join'];
+  let cleanHash = '';
+  try {
+    cleanHash = decodeURIComponent(hash || '').toLowerCase();
+  } catch {
+    cleanHash = (hash || '').toLowerCase();
+  }
+  const isHashRoute = Boolean(hash && !LANDING_HASHES.includes(cleanHash));
+
+  // Update body lock class when app layer is open (any app route or invalid route)
+  const isAppOpen = isPathRoute || isHashRoute;
   useEffect(() => {
     if (isAppOpen) {
       document.body.classList.add('lock');
@@ -142,6 +227,8 @@ export function KhutwaProvider({ children }) {
       document.body.classList.remove('lock');
     }
   }, [isAppOpen]);
+
+
 
   // Auth actions
   const registerUser = (name, email, pass) => {
@@ -321,6 +408,9 @@ export function KhutwaProvider({ children }) {
     setSid,
     hash,
     setHash,
+    pathname,
+    setPathname,
+
     toastMsg,
     showToast,
     dialogContent,
@@ -336,6 +426,7 @@ export function KhutwaProvider({ children }) {
     pend,
     setPend,
     user,
+    navigate,
     isAppOpen,
     pendingSubCount,
     pendingLeadsCount,

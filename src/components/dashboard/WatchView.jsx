@@ -111,7 +111,10 @@ export function WatchView({ cid = 'frontend', lid }) {
       const next = !prev;
       try {
         localStorage.setItem('khutwa:autoplay_next', JSON.stringify(next));
-      } catch (_) {}
+      } catch {
+        /* ignore local storage error */
+      }
+
       return next;
     });
   };
@@ -227,7 +230,10 @@ export function WatchView({ cid = 'frontend', lid }) {
       if (playerRef.current && typeof playerRef.current.destroy === 'function') {
         try {
           playerRef.current.destroy();
-        } catch (_) {}
+        } catch {
+          /* ignore player destroy error */
+        }
+
         playerRef.current = null;
       }
     };

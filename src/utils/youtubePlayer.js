@@ -29,7 +29,12 @@ export function loadYouTubeIframeAPI() {
     const prevCallback = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => {
       if (typeof prevCallback === 'function') {
-        try { prevCallback(); } catch (_) {}
+        try {
+          prevCallback();
+        } catch {
+          /* ignore error */
+        }
+
       }
       if (window.YT && window.YT.Player) {
         resolve(window.YT);

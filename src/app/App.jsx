@@ -7,7 +7,17 @@ import { ModalsManager } from '../components/modals';
 import { Toast } from '../components/common';
 
 function MainContent() {
-  const { isAppOpen, hash } = useKhutwa();
+  const { isAppOpen, hash, pathname, user } = useKhutwa();
+  const isGuestAdminAttempt =
+    !user &&
+    ((hash && (hash === '#/admin' || hash.startsWith('#/admin/'))) ||
+     (pathname && (pathname === '/admin' || pathname.startsWith('/admin/'))));
+
+  const isAuth =
+    (hash && hash.startsWith('#/auth')) ||
+    (pathname && pathname.startsWith('/auth')) ||
+    isGuestAdminAttempt;
+  const isWatch = (hash && hash.startsWith('#/watch')) || (pathname && pathname.startsWith('/watch'));
 
   return (
     <>
@@ -32,14 +42,17 @@ function MainContent() {
       {/* 6. Full App Layer Overlay (#app) */}
       <div id="app" hidden={!isAppOpen}>
         {isAppOpen && (
-          <>
-            {!hash.startsWith('#/auth') && <AppHeader />}
-            <main>
+          <div className="app-shell">
+            {!isAuth && <AppHeader />}
+            <main className="app-main-content">
               <AppRouter />
             </main>
-          </>
+            {!isWatch && !isAuth && <Footer />}
+          </div>
         )}
       </div>
+
+
 
       {/* Render Mobile Hamburger Menu Drawer */}
       <MobileMenu />
