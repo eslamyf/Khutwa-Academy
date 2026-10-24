@@ -38,10 +38,16 @@ export function AppRouter() {
     return <NotFoundView attemptedPath={fullAttemptedPath || pathname || '/'} />;
   }
 
-  const [r, a, b] = activePath.split('/');
+  const segments = activePath.split('/').filter(Boolean);
+  const [r, a, b] = segments;
 
   // 1. Protection for /admin (Role-Based Access Control - RBAC):
   if (r === 'admin') {
+    // If invalid subroute e.g. /admin/something
+    if (a) {
+      return <NotFoundView attemptedPath={fullAttemptedPath} />;
+    }
+
     // If guest (not logged in): redirect to login screen
     if (!user) {
       if (window.location.hash !== '#/auth/login' || window.location.pathname !== '/') {
@@ -64,8 +70,13 @@ export function AppRouter() {
     return <AdminDashboard />;
   }
 
-  // 2. Protection for /dashboard
+  // 2. Protection for /dashboard:
   if (r === 'dashboard') {
+    // If invalid subroute e.g. /dashboard/sbfadsf
+    if (a) {
+      return <NotFoundView attemptedPath={fullAttemptedPath} />;
+    }
+
     if (!user) {
       if (window.location.hash !== '#/auth/login') {
         window.location.hash = '#/auth/login';
@@ -81,8 +92,11 @@ export function AppRouter() {
     return <StudentDashboard />;
   }
 
-  // 3. /auth routes
+  // 3. /auth routes:
   if (r === 'auth') {
+    if ((a && a !== 'login' && a !== 'register') || b || segments.length > 2) {
+      return <NotFoundView attemptedPath={fullAttemptedPath} />;
+    }
     if (user) {
       if (user.role === 'admin') {
         if (window.location.hash !== '#/admin') {
@@ -99,15 +113,18 @@ export function AppRouter() {
   }
 
   if (r === 'course') {
-    const course = getCourse ? getCourse(a) : null;
-    if (!course) {
+    const course = (getCourse && a) ? getCourse(a) : null;
+    if (!course || b || segments.length > 2) {
       return <NotFoundView attemptedPath={fullAttemptedPath} />;
     }
     return <CourseView id={a} />;
   }
   if (r === 'watch') {
-    const course = getCourse ? getCourse(a) : null;
-    if (!course) {
+    const course = (getCourse && a) ? getCourse(a) : null;
+    if (!course || segments.length > 3) {
+      return <NotFoundView attemptedPath={fullAttemptedPath} />;
+    }
+    if (b && !course.lessons.some((l) => l.id === b)) {
       return <NotFoundView attemptedPath={fullAttemptedPath} />;
     }
     return (

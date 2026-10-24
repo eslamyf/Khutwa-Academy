@@ -62,19 +62,19 @@ export function TracksJourney() {
 
       const endEl = endRef.current;
       const st2Bottom = ys_val[2] + h2 / 2;
-      // Ensure the rope continues straight down well past the card's CTA button before curving
-      const ropePastButtonY = st2Bottom + (m ? 65 : 75);
-      const endTextTop = ropePastButtonY + (m ? 60 : 70);
+
+      // Position ending headline with ample breathing room below the tracks
+      const endTextTop = st2Bottom + (m ? 175 : 130);
       if (endEl) {
         endEl.style.top = `${endTextTop}px`;
         endEl.style.bottom = 'auto';
       }
 
-      // Curve gracefully into the center right above the ending text
-      const endY = endTextTop - (m ? 24 : 28);
+      // Smooth endpoint right above ending text
+      const endY = endTextTop - (m ? 40 : 32);
 
       const endHeight = endEl ? endEl.offsetHeight : 45;
-      const requiredHeight = endTextTop + endHeight + (m ? 32 : 60);
+      const requiredHeight = endTextTop + endHeight + (m ? 45 : 65);
       J.style.minHeight = `${requiredHeight}px`;
       J.style.height = `${requiredHeight}px`;
       H_val = requiredHeight;
@@ -86,13 +86,12 @@ export function TracksJourney() {
             [W * xs[0], ys_val[0]],
             [W * xs[1], ys_val[1]],
             [W * xs[2], ys_val[2]],
-            [W * xs[2], ropePastButtonY],
+            [W * 0.88, st2Bottom + 55],
             [W * 0.5, endY]
           ]
         : [
             [W * 0.5, startY],
             ...ys_val.map((y, i) => [W * xs[i], y]),
-            [W * xs[2], ropePastButtonY],
             [W * 0.5, endY]
           ];
 

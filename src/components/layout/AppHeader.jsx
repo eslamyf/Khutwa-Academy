@@ -116,7 +116,7 @@ export function AppHeader() {
             <span>{backLabel}</span>
           </button>
         )}
-        {(hash || '').startsWith('#/dashboard') && (
+        {(hash || '').startsWith('#/dashboard') && user?.role !== 'admin' && (
           <>
             <button className={dtab === 'courses' ? 'on' : ''} onClick={() => setDtab('courses')}>كورساتي</button>
             <button className={dtab === 'notifications' ? 'on' : ''} onClick={() => setDtab('notifications')}>
@@ -127,7 +127,7 @@ export function AppHeader() {
             <button className={dtab === 'wallet' ? 'on' : ''} onClick={() => setDtab('wallet')}>رصيدي</button>
           </>
         )}
-        {(hash || '').startsWith('#/admin') && (
+        {(hash || '').startsWith('#/admin') && user?.role === 'admin' && (
           <>
             <button className={atab === 'ov' ? 'on' : ''} onClick={() => { setAtab('ov'); setAedit(null); }}>نظرة عامة</button>
             <button className={atab === 'sub_requests' ? 'on' : ''} onClick={() => { setAtab('sub_requests'); setAedit(null); }}>
@@ -141,15 +141,23 @@ export function AppHeader() {
             </button>
           </>
         )}
-        {!(hash || '').startsWith('#/dashboard') && !(hash || '').startsWith('#/admin') && user && (
+        {user && (
+          (user.role === 'admin' && !(hash || '').startsWith('#/admin')) ||
+          (user.role !== 'admin' && !(hash || '').startsWith('#/dashboard'))
+        ) && (
           <button
             className="on"
             onClick={() => {
-              setDtab('courses');
-              window.location.hash = user.role === 'admin' ? '#/admin' : '#/dashboard';
+              if (user.role === 'admin') {
+                setAtab('ov');
+                window.location.hash = '#/admin';
+              } else {
+                setDtab('courses');
+                window.location.hash = '#/dashboard';
+              }
             }}
           >
-            كورساتي
+            {user.role === 'admin' ? 'لوحة الإدارة' : 'كورساتي'}
           </button>
         )}
       </nav>
