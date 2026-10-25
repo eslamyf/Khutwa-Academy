@@ -22,20 +22,27 @@ export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('touchstart', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen]);
 
@@ -149,26 +156,16 @@ export function NotificationBell() {
         </span>
 
         {unreadCount > 0 && (
-          <>
-            {/* Pulsing signal radar wave ("يبان زي الإشارة") */}
-            <span className="bell-signal-wave" aria-hidden="true"></span>
-            <span className="bell-badge" aria-label={`${unreadCount} إشعارات جديدة`}>
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
-          </>
+          <span className="bell-badge" aria-label={`${unreadCount} إشعارات جديدة`}>
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
         )}
       </button>
 
       {/* Modern Notifications Dropdown Panel */}
       {isOpen && (
-        <>
-          <div
-            className="notif-backdrop"
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="notif-dropdown-panel" role="dialog" aria-label="قائمة التنبيهات">
-            <div className="notif-dropdown-header">
+        <div className="notif-dropdown-panel" role="dialog" aria-label="قائمة التنبيهات">
+          <div className="notif-dropdown-header">
               <div className="notif-header-title">
                 <i className="fa-solid fa-bell"></i>
                 <strong>مركز الإشعارات</strong>
@@ -393,7 +390,6 @@ export function NotificationBell() {
             </button>
           </div>
         </div>
-      </>
       )}
     </div>
   );

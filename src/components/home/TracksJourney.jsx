@@ -29,13 +29,22 @@ export function TracksJourney() {
     let L_len = 0;
     let H_val = 0;
     let ys_val = [];
+    let cardPathLens = [];
+
+    function lenAt(y, totalLen) {
+      let lo = 0, hi = totalLen;
+      for (let k = 0; k < 18; k++) {
+        const mid = (lo + hi) / 2;
+        pf.getPointAtLength(mid).y < y ? (lo = mid) : (hi = mid);
+      }
+      return lo;
+    }
 
     function buildPath() {
-      // Clear inline height first so DOM can be measured accurately
-      J.style.minHeight = '';
-      J.style.height = '';
-      const W = J.clientWidth;
-      H_val = J.clientHeight;
+      // Never clear J.style.height/minHeight to empty string during recalculation.
+      // Clearing inline height causes the section to collapse to 0px on mobile,
+      // which shrinks document height and forces browsers to jump/reset scroll to top!
+      const W = J.clientWidth || window.innerWidth;
       const m = W < 800;
       const xs = m ? [0.88, 0.84, 0.88, 0.82] : [0.3, 0.7, 0.3, 0.5];
 
@@ -108,6 +117,9 @@ export function TracksJourney() {
       L_len = pf.getTotalLength();
       pf.style.strokeDasharray = L_len;
 
+      // Pre-calculate path length at each card ONCE to avoid heavy recalculations during scroll
+      cardPathLens = ys_val.map((y) => lenAt(y, L_len));
+
       sts.forEach((s, i) => {
         s.style.top = ys_val[i] - s.offsetHeight / 2 + 'px';
         if (m) {
@@ -122,15 +134,6 @@ export function TracksJourney() {
         }
       });
       updateScroll();
-    }
-
-    function lenAt(y) {
-      let lo = 0, hi = L_len;
-      for (let k = 0; k < 18; k++) {
-        const mid = (lo + hi) / 2;
-        pf.getPointAtLength(mid).y < y ? (lo = mid) : (hi = mid);
-      }
-      return lo;
     }
 
     let ticking = false;
@@ -148,7 +151,7 @@ export function TracksJourney() {
             const sRect = s.getBoundingClientRect();
             // تفعيل معتدل ووسطي: عندما يصل الكورس لمنتصف مجال الرؤية أو يصله المسار
             const isInFocus = sRect.top < window.innerHeight * 0.58 && sRect.bottom > 80;
-            const isPathReached = (L_len * p) >= (lenAt(ys_val[i]) - 40);
+            const isPathReached = (L_len * p) >= ((cardPathLens[i] || 0) - 40);
             s.classList.toggle('on', isInFocus || isPathReached);
           });
           ticking = false;
@@ -157,16 +160,32 @@ export function TracksJourney() {
       }
     }
 
+    // Debounced width-only resize listener:
+    // On mobile devices, scrolling expands/collapses the URL/address bar, which fires window resize!
+    // We only recompute layout if the actual viewport WIDTH changed (e.g. device rotation).
+    let lastWidth = window.innerWidth;
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      if (Math.abs(currentWidth - lastWidth) > 8) {
+        lastWidth = currentWidth;
+        buildPath();
+      }
+    };
+
     window.addEventListener('scroll', updateScroll, { passive: true });
-    window.addEventListener('resize', buildPath);
+    window.addEventListener('resize', handleResize, { passive: true });
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(buildPath);
+      document.fonts.ready.then(() => {
+        if (Math.abs(window.innerWidth - lastWidth) <= 8) {
+          buildPath();
+        }
+      });
     }
     buildPath();
 
     return () => {
       window.removeEventListener('scroll', updateScroll);
-      window.removeEventListener('resize', buildPath);
+      window.removeEventListener('resize', handleResize);
     };
   }, [isAppOpen]);
 
